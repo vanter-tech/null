@@ -1,0 +1,30 @@
+package com.example.demo.message;
+
+import com.example.demo.conversation.ConversationRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class MessageService {
+
+    private final MessageRepository messageRepository;
+    private final ConversationRepository conversationRepository;
+
+    public Message saveMessage(
+            Message message
+    ){
+        if(!conversationRepository.existsById(message.getConversationId())){
+            throw new RuntimeException("Error! This conversation does not exist!");
+        }
+        message.setTimestamp(LocalDateTime.now());
+        return messageRepository.save(message);
+    }
+
+    public List<Message> findChatMessages(Long conversationId){
+        return messageRepository.findByConversationIdOrderByTimestampAsc(conversationId);
+    }
+}
