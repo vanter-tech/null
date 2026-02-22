@@ -1,6 +1,7 @@
 package com.example.demo.message;
 
 import com.example.demo.conversation.ConversationRepository;
+import com.example.demo.kafka.MessageProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final ConversationRepository conversationRepository;
+    private final MessageProducer messageProducer;
 
     public Message saveMessage(
             Message message
@@ -21,6 +23,11 @@ public class MessageService {
             throw new RuntimeException("Error! This conversation does not exist!");
         }
         message.setTimestamp(LocalDateTime.now());
+
+        Message savedMessage = messageRepository.save(message);
+
+        messageProducer.sendMessage(savedMessage);
+
         return messageRepository.save(message);
     }
 
