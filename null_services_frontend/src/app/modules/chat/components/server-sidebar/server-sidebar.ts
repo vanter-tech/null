@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ServerControllerService } from '../../../../services/api';
 import { ServerResponse } from '../../../../services/api';
@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './server-sidebar.html',
   styleUrl: './server-sidebar.css',
 })
-export class ServerSidebar {
+export class ServerSidebar implements OnInit {
 
   servers: ServerResponse[] = [];
 
@@ -20,7 +20,9 @@ export class ServerSidebar {
   serverNameInput: string = '';
   serverImageInput: string = '';
 
-  constructor( private serverService: ServerControllerService) {
+  constructor( private serverService: ServerControllerService,
+    private cdr: ChangeDetectorRef
+  ) {
 
   }
 
@@ -33,6 +35,7 @@ export class ServerSidebar {
       next: (response) => {
         this.servers = response;
         console.log('Servers loaded:', this.servers);
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error loading servers:', error);

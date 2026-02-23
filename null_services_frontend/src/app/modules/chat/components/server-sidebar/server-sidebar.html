@@ -1,15 +1,16 @@
-<div class="w-[72px] h-full bg-[#1E1F22] flex-shrink-0 flex flex-col items-center py-3 gap-2 overflow-y-auto hidden-scrollbar pt-3">
+<div class="w-[72px] h-full bg-[#1E1F22] flex-shrink-0 flex flex-col items-center py-3 gap-2 pt-3">
   
   <div class="group relative flex items-center justify-center w-full cursor-pointer">
     <div class="absolute left-0 w-1 h-10 bg-white rounded-r-lg opacity-100"></div>
     <div class="w-12 h-12 bg-[#5865F2] rounded-[16px] flex items-center justify-center text-white transition-all hover:bg-indigo-400">
-      <i class="fa-brands fa-discord text-2xl"></i>
+      <img src="/null_logo_inverse.webp" alt="Mi App Logo" class="w-8 h-8 object-contain transition-transform duration-300 group-hover:scale-110" />
     </div>
   </div>
 
   <div class="w-8 h-[2px] bg-[#35363C] rounded-full my-1"></div>
 
   @for (server of servers; track server.id) {
+
     <div class="group relative flex items-center justify-center w-full cursor-pointer mt-2">
       <div class="absolute left-0 w-1 bg-white rounded-r-lg opacity-0 transition-all duration-300 h-2 group-hover:opacity-100 group-hover:h-5"></div>
       
@@ -20,7 +21,14 @@
         <div class="absolute -bottom-1 -right-1 bg-[#F23F42] border-[4px] border-[#1E1F22] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center flex items-center justify-center">
           2
         </div>
+
       </div>
+
+      <div class="absolute left-[74px] bg-[#111214] text-[#DBDEE1] text-[15px] font-bold px-3 py-1.5 rounded-[6px] shadow-xl whitespace-nowrap opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 pointer-events-none z-50 flex items-center">
+        <div class="absolute -left-1 w-2.5 h-2.5 bg-[#111214] rotate-45 rounded-sm"></div>
+        <span class="relative z-10">{{ server.name }}</span>
+      </div>
+
     </div>
   }
 
