@@ -1,14 +1,16 @@
 import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule} from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ServerControllerService } from '../../../../services/api';
 import { ServerResponse } from '../../../../services/api';
 import { ServerRequest } from '../../../../services/api';
 import { FormsModule } from '@angular/forms';
 
+
 @Component({
   selector: 'app-server-sidebar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './server-sidebar.html',
   styleUrl: './server-sidebar.css',
 })

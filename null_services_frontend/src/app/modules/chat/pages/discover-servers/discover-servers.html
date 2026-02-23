@@ -1,0 +1,53 @@
+<div class="flex w-full h-full bg-[#313338] text-white overflow-hidden">
+  
+  <app-discover-sidebar></app-discover-sidebar>
+
+  <div class="flex-1 flex flex-col h-full overflow-y-auto custom-scrollbar">
+    
+    <div class="relative w-full h-[300px] bg-gradient-to-br from-[#1b2b63] to-[#12163b] flex flex-col justify-center items-center text-center p-8 shrink-0">
+      <h1 class="text-[40px] font-extrabold text-white mb-2 leading-tight">ENCUENTRA TU<br>COMUNIDAD EN NULL</h1>
+      <p class="text-[#B5BAC1] text-[16px]">Desde juegos, a música y enseñanza, aquí encontrarás tu sitio.</p>
+    </div>
+
+    <div class="p-8 max-w-[1200px] mx-auto w-full">
+      <h3 class="text-[20px] font-bold text-white mb-6">Servidores destacados</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        
+        @for (server of publicServers; track server.id) {
+          <div class="bg-[#2B2D31] rounded-xl overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-200 group flex flex-col h-[280px]">
+            
+            <div class="h-[120px] w-full bg-[#1E1F22] relative">
+              <div class="absolute -bottom-6 left-4 w-12 h-12 rounded-xl bg-[#313338] border-[4px] border-[#2B2D31] flex items-center justify-center font-bold text-xl overflow-hidden text-white shadow-sm z-10">
+                @if (server.imageUrl) {
+                  <img [src]="server.imageUrl" class="w-full h-full object-cover">
+                } @else {
+                  {{ server.name?.charAt(0) | uppercase }}
+                }
+              </div>
+            </div>
+
+            <div class="p-4 pt-8 flex-1 flex flex-col">
+              <h4 class="text-white font-bold text-[16px] flex items-center gap-1">
+                <svg class="w-4 h-4 text-[#23A559]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                {{ server.name }}
+              </h4>
+              <p class="text-[#B5BAC1] text-[14px] mt-1 line-clamp-3 leading-snug">
+                Servidor público comunitario en Null. ¡Únete para chatear y conocer personas increíbles!
+              </p>
+            </div>
+            
+          </div>
+        } @empty {
+          <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center text-[#B5BAC1] py-10 bg-[#2B2D31] rounded-xl border border-dashed border-[#404249]">
+            Aún no hay servidores públicos disponibles. ¡Sé el primero en crear uno!
+          </div>
+        }
+
+      </div>
+    </div>
+  </div>
+  
+</div>
