@@ -1,0 +1,28 @@
+<div class="h-full w-full flex items-center justify-between px-2 bg-transparent">
+  
+  <div class="flex items-center gap-2 hover:bg-[#3f4147] p-1 rounded-md cursor-pointer transition-colors flex-1 min-w-0">
+    <div class="relative w-8 h-8 rounded-full bg-[#5865F2] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+      U
+      <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[#23A559] border-[3px] border-[#232428] rounded-full"></div>
+    </div>
+    
+    <div class="flex flex-col overflow-hidden flex-1 min-w-0">
+      <span class="text-white text-sm font-bold truncate leading-none mb-1">Usuario</span>
+      <span class="text-[#B5BAC1] text-[11px] truncate leading-none">En línea</span>
+    </div>
+  </div>
+
+  <div class="flex items-center ml-1">
+    <button 
+      (click)="logout()" 
+      title="Cerrar Sesión" 
+      class="w-8 h-8 flex items-center justify-center rounded text-[#B5BAC1] hover:bg-[#3f4147] hover:text-[#F23F42] transition-colors focus:outline-none">
+      
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+      </svg>
+
+    </button>
+  </div>
+
+</div>
