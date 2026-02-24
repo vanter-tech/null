@@ -9,4 +9,6 @@ import lombok.Setter;
 @Builder
 public class AuthenticationResponse {
     private String token;
+    private String nickname;
+    private String email;
 }

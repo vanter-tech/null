@@ -1,17 +1,17 @@
 <div class="flex h-screen w-screen overflow-hidden bg-[#313338] relative">
   
-  <app-server-sidebar class="flex-shrink-0 z-10"></app-server-sidebar>
+  <app-server-sidebar class="flex-shrink-0"></app-server-sidebar>
 
   <div class="flex-1 h-full z-10">
     <router-outlet></router-outlet>
   </div>
 
-  <div class="fixed bottom-2 left-2 w-[300px] h-[52px] z-[50] 
-              bg-[#232428] rounded-lg shadow-2xl flex items-center overflow-hidden">
+  <div class="fixed bottom-2 left-2 w-[300px] h-[52px] z-[1000] bg-[#232428] rounded-lg shadow-2xl flex items-center overflow-hidden">
     
     <div class="h-full flex-shrink-0"></div>
 
-    <app-user-panel class="flex-1 h-full block"></app-user-panel>
+    <app-user-panel></app-user-panel>
+
   </div>
 
 </div>

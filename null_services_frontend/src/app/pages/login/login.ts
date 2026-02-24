@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthenticationService } from '../../services/api';
 import { Token } from '../../services/api/token/token';
+import { AuthService } from '../../services/api/authservice/auth-service';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +25,8 @@ export class Login {
   constructor(
     private authService: AuthenticationService,
     private router: Router,
-    private tokenService: Token
+    private tokenService: Token,
+    private nickService: AuthService
   ) {
     
   }
@@ -34,6 +36,11 @@ export class Login {
     this.authService.authenticate(this.authRequest).subscribe({
       next: (response) => {
         this.tokenService.token = response.token as string;
+
+        if(response.nickname) {
+          this.nickService.setNickname(response.nickname);
+        }
+
         console.log('Inicio de Sesion Exitoso', response);
         this.router.navigate(['/chat']);
 

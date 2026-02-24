@@ -11,5 +11,7 @@
 
 export interface AuthenticationResponse { 
     token?: string;
+    nickname?: string;
+    email?: string;
 }
 

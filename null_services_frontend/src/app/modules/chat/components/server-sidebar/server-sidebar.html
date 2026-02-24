@@ -61,7 +61,7 @@
 </div>
 
 @if (isModalOpen) {
-  <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+  <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999]">
     
     <div class="bg-[#313338] rounded-[16px] w-[440px] shadow-xl overflow-hidden text-center flex flex-col">
       
@@ -78,6 +78,7 @@
         <input 
           type="text" 
           [(ngModel)]="serverNameInput"
+          name="serverNameInput"
           class="w-full bg-[#1E1F22] text-white rounded p-2.5 mb-4 focus:outline-none focus:ring-1 focus:ring-[#5865F2] transition-all"
           placeholder="Servidor de Prueba"
         />
@@ -86,7 +87,8 @@
           URL de la Imagen (Opcional)
         </label>
         <input 
-          type="text" 
+          type="text"
+          name="serverImageInput" 
           [(ngModel)]="serverImageInput"
           class="w-full bg-[#1E1F22] text-white rounded p-2.5 mb-2 focus:outline-none focus:ring-1 focus:ring-[#5865F2] transition-all"
           placeholder="https://ejemplo.com/imagen.png"

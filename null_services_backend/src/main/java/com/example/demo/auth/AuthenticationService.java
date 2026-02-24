@@ -106,6 +106,8 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .nickname(user.getNickName())
+                .email(user.getEmail())
                 .build();
     }
 
