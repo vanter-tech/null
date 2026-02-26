@@ -1,5 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
+import { ConversationControllerService } from '../../../../../../services/api';
 
 import { FriendsControllerService } from '../../../../../../services/api/api/friendsController.service';
 import { FriendResponseDTO } from '../../../../../../services/api/model/friendResponseDTO';
@@ -15,10 +17,13 @@ export class FriendsAll implements OnInit {
 
   FriendsList: FriendResponseDTO[] = [];
 
+  @Output() onOpenChat = new EventEmitter<{ conversationId: number, friendName: string }>();
+
   constructor
   (
     private friendsControllerService: FriendsControllerService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private conversationControllerService: ConversationControllerService
 
   ) {}
 
@@ -42,6 +47,23 @@ export class FriendsAll implements OnInit {
     });
 
   }
+
+   startChat(friendId: number | undefined, friendName: string | undefined): void{
+    if (!friendId || !friendName) return;
+
+    this.conversationControllerService.createConversation(friendId as any).subscribe({
+      next: (response: any) => {
+        this.onOpenChat.emit({ 
+          conversationId: response.id, 
+          friendName: friendName });
+      },
+      error: (error) => {
+        console.error('Error creating conversation:', error);
+      }
+    });
+    
+   }
+  
 
 
 

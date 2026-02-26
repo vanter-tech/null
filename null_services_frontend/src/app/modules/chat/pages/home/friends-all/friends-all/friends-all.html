@@ -21,7 +21,8 @@
         </div>
 
         <div class="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button class="w-9 h-9 rounded-full bg-[#2b2d31] hover:bg-[#1e1f22] flex items-center justify-center text-[#b5bac1] hover:text-[#dbdee1] transition-colors shadow-sm" title="Mensaje">
+          <button (click)="startChat(friend.id, friend.name)" 
+          class="w-9 h-9 rounded-full bg-[#2b2d31] hover:bg-[#1e1f22] flex items-center justify-center text-[#b5bac1] hover:text-[#dbdee1] transition-colors shadow-sm" title="Mensaje">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M4.79805 3C3.80445 3 2.99805 3.8055 2.99805 4.8V15.6C2.99805 16.5936 3.80445 17.4 4.79805 17.4H7.49805V21L11.098 17.4H19.198C20.1916 17.4 20.998 16.5936 20.998 15.6V4.8C20.998 3.8055 20.1916 3 19.198 3H4.79805Z"/>
             </svg>
