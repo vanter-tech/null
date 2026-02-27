@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ServerSidebar } from "../../components/server-sidebar/server-sidebar";
 import { UserPanel } from '../../components/user-panel/user-panel';
+import { ConversationResponse } from '../../../../services/api';
 
 @Component({
   selector: 'app-main',
@@ -10,5 +11,6 @@ import { UserPanel } from '../../components/user-panel/user-panel';
   styleUrl: './main.css',
 })
 export class Main {
+
 
 }

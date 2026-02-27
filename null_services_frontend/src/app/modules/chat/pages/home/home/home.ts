@@ -1,12 +1,10 @@
 import { Component } from '@angular/core';
-import { DmSidebar } from "../../../components/dm-sidebar/dm-sidebar";
 import { CommonModule } from '@angular/common';
-
+import { DmSidebar } from "../../../components/dm-sidebar/dm-sidebar";
 import { FriendsOnline } from '../friends-online/friends-online/friends-online';
 import { FriendsAll } from '../friends-all/friends-all/friends-all';
 import { FriendsPending } from '../friends-pending/friends-pending/friends-pending';
 import { FriendAdd } from '../friends-add/friend-add/friend-add';
-
 import { ChatRoom } from '../chat-room/chat-room/chat-room';
 
 type tabType = 'ONLINE' | 'ALL' | 'PENDING' | 'ADD';
@@ -14,34 +12,48 @@ type ViewType = 'FRIENDS' | 'CHAT';
 
 @Component({
   selector: 'app-home',
-  imports: [DmSidebar, 
+  imports: [
     CommonModule, 
+    DmSidebar, 
     FriendsOnline, 
     FriendsAll, 
     FriendsPending,
     FriendAdd,
-    ChatRoom],
+    ChatRoom
+  ],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home  {
+export class Home {
 
   currentView: ViewType = 'FRIENDS';
   activeTab: tabType = 'ALL';
 
-  // 1. Necesitamos guardar ambos datos para pasárselos al ChatRoom
+  // Variables que alimentan el chat
   activeConversationId: number | null = null;
-  activeFriendName: string = ''; // <--- Agregamos esta variable
+  activeFriendName: string = '';
+
+  // 👇 El "Cerebro" que maneja los clics de cualquier parte 👇
+  openChat(eventData: any) {
+    console.log('Solicitud para abrir chat:', eventData);
+
+    // CASO 1: Si el clic viene de la Barra Lateral (tiene 'otherUserName')
+    if (eventData.otherUserName) {
+      this.activeConversationId = eventData.id;
+      this.activeFriendName = eventData.otherUserName;
+    } 
+    // CASO 2: Si el clic viene de tu Lista de Amigos (tiene 'friendName')
+    else {
+      this.activeConversationId = eventData.conversationId;
+      this.activeFriendName = eventData.friendName;
+    }
+
+    // Finalmente, cambiamos la pantalla al modo CHAT
+    this.currentView = 'CHAT';
+  }
 
   setTab(tab: tabType) {
     this.activeTab = tab;
-  }
-
-  // 2. Actualizamos el método para recibir el objeto del evento
-  openChat(event: { conversationId: number, friendName: string }) {
-    this.activeConversationId = event.conversationId;
-    this.activeFriendName = event.friendName;
-    this.currentView = 'CHAT';
   }
 
   openFriendsList() {
@@ -49,5 +61,4 @@ export class Home  {
     this.activeConversationId = null;
     this.activeFriendName = '';
   }
-
 }

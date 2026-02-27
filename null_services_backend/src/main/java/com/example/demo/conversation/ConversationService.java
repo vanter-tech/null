@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -58,4 +59,25 @@ public class ConversationService {
                 .build();
     }
 
+    public List<ConversationResponse> getUserConversation(Authentication connectedUser) {
+
+        User user = (User) connectedUser.getPrincipal();
+
+        List<Conversation> conversations = conversationRepository.findAllByUserId(user.getId());
+
+        return conversations.stream()
+                .map(conversation -> {
+                    User friend = conversation.getParticipants().stream()
+                            .filter(p -> !p.getId().equals(user.getId()))
+                            .findFirst()
+                            .orElse(user);
+
+                    return ConversationResponse.builder()
+                            .id(conversation.getId())
+                            .otherUserName(friend.getNickName() != null ? friend.getNickName() : friend.getFullname())
+                            .build();
+                })
+                .toList();
+
+    }
 }
