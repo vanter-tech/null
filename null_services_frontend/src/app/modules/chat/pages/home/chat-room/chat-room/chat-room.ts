@@ -1,9 +1,15 @@
-import { Component, Input, OnChanges, SimpleChanges, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
+import { ElementRef, ViewChild, 
+  Component, Input, OnChanges, SimpleChanges, ChangeDetectorRef, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
+import { Token } from '../../../../../../services/api/token/token';
+
+import { Subscription } from 'rxjs';
+
 import { MessageControllerService } from '../../../../../../services/api';
-import { Message } from '../../../../../../services/api';
+import { Message } from '../../../../../../services/api';;
+import { Websocket } from '../../../../../../services/api/websocket/websocket';
 
 @Component({
   selector: 'app-chat-room',
@@ -12,25 +18,80 @@ import { Message } from '../../../../../../services/api';
   templateUrl: './chat-room.html',
   styleUrl: './chat-room.css',
 })
-export class ChatRoom {
+export class ChatRoom implements OnChanges, OnDestroy {
 
   @Input({required: true}) conversationId!: number;
   @Input({required: true}) friendName!: string;
+  @ViewChild('scrollMe') private myScrollContainer!: ElementRef;
 
   newMessage: string = '';
   messages: Message[] = [];
 
-  myUserId: number = 1;
+  myUserId!: number;
+
+  private topicSubscription?: Subscription;
 
   constructor(
     private messageService: MessageControllerService,
-    private cdr: ChangeDetectorRef
-  ){}
+    private wsService: Websocket,
+    private cdr: ChangeDetectorRef,
+    private tokenService: Token
+  ){
+    this.extractIdFromToken();
+  }
+
+  extractIdFromToken(){
+    const tokenStr = this.tokenService.token
+    if(tokenStr){
+      try{
+        const payload = JSON.parse(atob(tokenStr.split('.')[1]))
+        console.log('Token conten:' , payload);
+
+        this.myUserId = payload.userId;
+        
+      }catch(e){
+        console.log('Decodifing token error', e);
+        
+      }
+    }
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['conversationId'] && this.conversationId) {
       this.loadChatHistory();
+      this.connectToRoom();
     }
+  }
+
+  connectToRoom() {
+
+    if (this.topicSubscription) {
+      this.topicSubscription.unsubscribe();
+    }
+
+    const topic = `/topic/chat/${this.conversationId}`;
+
+    this.topicSubscription = this.wsService.rxStomp.watch(topic).subscribe((message) => {
+      const receivedMsg: Message = JSON.parse(message.body);
+      
+      // 🛡️ SOLUCIÓN 1: Evitamos duplicados verificando si el ID ya existe en pantalla
+      const alreadyExists = this.messages.some(m => m.id === receivedMsg.id);
+      
+      if (!alreadyExists) {
+        this.messages.push(receivedMsg);
+        this.cdr.detectChanges();
+        
+        // 📜 SOLUCIÓN 2: Retrasamos el scroll 50ms para que Angular alcance a dibujar el HTML
+        setTimeout(() => this.scrollToBottom(), 50);
+      }
+    });
+
+  }
+
+  ngOnDestroy() {
+    if (this.topicSubscription) {
+      this.topicSubscription.unsubscribe();
+    } 
   }
 
   loadChatHistory(){
@@ -39,7 +100,7 @@ export class ChatRoom {
        next:(history) => {
         this.messages = history;
         this.cdr.markForCheck();
-        this.scrollToBottom();
+        setTimeout(() => this.scrollToBottom());
        },
       error: (err) => {
          console.error('Failed to load chat history', err);
@@ -48,41 +109,65 @@ export class ChatRoom {
 
     }
 
-    sendMessage() {
+  sendMessage() {
+
       if (!this.newMessage.trim()) return;
 
-      const msgPayload: any = {
-        content: this.newMessage,
-        conversationId: this.conversationId,
-        sendId: this.myUserId,
-      };
+    const msgPayload: any = {
+      content: this.newMessage,
+      conversationId: this.conversationId,
+      sendId: this.myUserId, 
+    };
 
-      this.messageService.sendMessage(msgPayload as any).subscribe({
-        next: (savedMessage) =>{
+    // Vaciamos el input de inmediato para que se sienta súper rápido
+    this.newMessage = ''; 
+
+    this.messageService.sendMessage(msgPayload).subscribe({
+      next: (savedMessage) => {
+        
+        // 🛡️ SOLUCIÓN 1: Evitamos que choque con el mensaje que viene del WebSocket
+        const alreadyExists = this.messages.some(m => m.id === savedMessage.id);
+        
+        if (!alreadyExists) {
           this.messages.push(savedMessage);
-          this.newMessage = '';
-          this.cdr.markForCheck();
-          this.scrollToBottom();
-        },
-        error: (err) => {
-          console.error('Failed to send message', err);
+          this.cdr.detectChanges();
+          
+          // 📜 SOLUCIÓN 2: Scroll fluido hacia abajo
+          setTimeout(() => this.scrollToBottom(), 50);
         }
-      });
+      },
+      error: (err) => console.error('Error enviando el mensaje:', err)
+    });
+
+  }
+
+
+  getSenderName(sendId?: number | string): string {
+
+    if (!sendId) {
+      // Si entra aquí, es culpa del backend (no envía el ID del remitente)
+      return 'Unknown (Falta ID)'; 
     }
 
-    getSenderName(sendId: number | undefined): string {
-      if(!sendId) return 'Unknown';
-      return sendId === this.myUserId ? 'You' : this.friendName;
-    }
+    const id = Number(sendId);
 
-    scrollToBottom() {
-      setTimeout(() => {
-        const chatContainer = document.querySelector('.chat-scroll-container');
-        if (chatContainer) {
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-      }, 100);
+    if (id === this.myUserId) {
+      return 'Tú'; 
     }
+    
+    // Si entra aquí, es culpa de que friendName no esté llegando
+    return this.friendName || 'Unknown (Falta Nombre)';
+  }
+
+  scrollToBottom(): void {
+    try {
+      // Le decimos al contenedor que su posición superior sea igual a su altura total
+      this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
+    } catch(err) { 
+      // Silenciamos el error por si Angular intenta hacer scroll antes de que el contenedor exista
+    }
+  }
+
 
   @Output() onClose = new EventEmitter<void>();
 

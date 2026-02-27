@@ -44,6 +44,14 @@ application:
   mailing:
     frontend:
       activation-url: http://localhost:4200/activate-account
+  cors:
+    allowed-origins: htpp://localhost:4200
+
+logging:
+  level:
+    org.springframework.web.socket: DEBUG
+    org.springframework.messaging: DEBUG
+    org.springframework.security: DEBUG
 
 server:
   port: 8088

@@ -30,10 +30,12 @@
     "@angular/forms": "^21.1.0",
     "@angular/platform-browser": "^21.1.0",
     "@angular/router": "^21.1.0",
+    "@stomp/rx-stomp": "^2.3.0",
     "angular-code-input": "^2.0.0",
     "bootstrap": "^5.3.8",
     "ng-openapi-gen": "^1.0.5",
     "rxjs": "~7.8.0",
+    "sockjs-client": "^1.6.1",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
@@ -41,6 +43,7 @@
     "@angular/cli": "^21.1.2",
     "@angular/compiler-cli": "^21.1.0",
     "@openapitools/openapi-generator-cli": "^2.29.0",
+    "@types/sockjs-client": "^1.5.4",
     "autoprefixer": "^10.4.24",
     "jsdom": "^27.1.0",
     "postcss": "^8.5.6",

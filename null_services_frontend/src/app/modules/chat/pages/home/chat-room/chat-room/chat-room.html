@@ -2,7 +2,8 @@
   
   <div class="h-[48px] px-4 flex items-center justify-between border-b border-[#1e1f22] shadow-sm flex-shrink-0">
     <div class="flex items-center space-x-3 cursor-pointer">
-    <button (click)="backToFriends()" class="md:hidden text-[#b5bac1] hover:text-white mr-2">
+    <button (click)="backToFriends()" class=" text-[#b5bac1] hover:text-white mr-2
+    transition-colors p-1 cursor-pointer rounded hover:bg-[#3f4147]">
        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
     </button>
       <span class="text-[#80848e] font-medium text-2xl mb-1">@</span>
@@ -15,7 +16,7 @@
     </div>
   </div>
 
-  <div id="chat-scroll-container" class="flex-1 overflow-y-auto custom-scrollbar flex flex-col pt-4 pb-4">
+  <div id="chat-scroll-container" #scrollMe class="flex-1 overflow-y-auto custom-scrollbar flex flex-col pt-4 pb-4">
     
     <div class="mt-4 mb-6 px-4">
       <div class="w-20 h-20 bg-indigo-500 rounded-full flex items-center justify-center text-4xl text-white font-bold mb-4">
