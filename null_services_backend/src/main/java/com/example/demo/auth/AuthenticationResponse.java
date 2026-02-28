@@ -1,5 +1,6 @@
 package com.example.demo.auth;
 
+import com.example.demo.user.UserStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,5 +42,15 @@ public class AuthenticationResponse {
      * Sirve como identificador principal en el frontend para mostrar en perfiles o menús de cuenta.
      */
     private String email;
+
+    /**
+     * El estado actual de presencia del usuario (ONLINE, OFFLINE, AWAY, DO_NOT_DISTURB).
+     * <p>
+     * Se envía en el momento del login para que el frontend (Angular) pueda
+     * inicializar el estado visual del usuario en la interfaz (ej. pintar el
+     * indicador verde de "en línea") inmediatamente.
+     * </p>
+     */
+    private UserStatus status;
 
 }

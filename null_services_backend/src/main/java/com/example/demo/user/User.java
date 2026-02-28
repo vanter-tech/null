@@ -52,6 +52,17 @@ public class User implements UserDetails, Principal {
     private String password;
     private LocalDate dateOfBirth;
 
+    /**
+     * Estado actual de presencia del usuario.
+     * <p>
+     * Se guarda como STRING en la base de datos para evitar desajustes de índices
+     * si el Enum se modifica en el futuro. Por defecto, todo usuario nace desconectado.
+     * </p>
+     */
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private UserStatus status = UserStatus.OFFLINE;
+
     // Banderas de control de acceso para Spring Security
     private boolean accountLocked;
     private boolean enable;

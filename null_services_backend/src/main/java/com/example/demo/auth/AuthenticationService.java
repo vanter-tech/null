@@ -4,10 +4,7 @@ import com.example.demo.email.EmailService;
 import com.example.demo.email.EmailTemplateName;
 import com.example.demo.role.RoleRepository;
 import com.example.demo.security.JwtService;
-import com.example.demo.user.Token;
-import com.example.demo.user.TokenRepository;
-import com.example.demo.user.User;
-import com.example.demo.user.UserRepository;
+import com.example.demo.user.*;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -150,10 +147,15 @@ public class AuthenticationService {
 
         var jwtToken = jwtService.generateToken(claims, user);
 
+        // Cambiamos el estado a ONLINE al hacer login
+        user.setStatus(UserStatus.ONLINE);
+        userRepository.save(user); // Guardamos el cambio en la base de datos
+
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .nickname(user.getNickName())
                 .email(user.getEmail())
+                .status(user.getStatus())
                 .build();
     }
 
