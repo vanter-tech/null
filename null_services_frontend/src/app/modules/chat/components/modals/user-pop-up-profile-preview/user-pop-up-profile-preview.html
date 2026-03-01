@@ -1,0 +1,85 @@
+<div class="fixed inset-0 bg-black/70 z-[9999] flex items-center justify-center font-sans select-none" (click)="closeModal()">
+  
+  <div class="w-[850px] h-[520px] bg-[#313338] rounded-xl shadow-2xl flex overflow-hidden cursor-default" (click)="$event.stopPropagation()">
+    
+    <div class="w-[300px] bg-[#232428] flex flex-col shrink-0 relative">
+      
+      <div class="h-[120px] bg-[#d7c4b1] w-full"></div>
+      
+      <div class="absolute top-[70px] left-[16px] rounded-full bg-[#232428] p-[6px]">
+        <div class="relative w-[100px] h-[100px] rounded-full overflow-hidden bg-gray-600">
+           </div>
+        <div class="absolute bottom-1 right-1 w-7 h-7 border-[4px] border-[#232428] bg-[#f0b232] rounded-full flex items-center justify-center">
+          </div>
+      </div>
+
+      <div class="px-5 pt-16 flex flex-col">
+        <h1 class="text-white text-2xl font-bold leading-tight">FER</h1>
+        <div class="flex items-center gap-1 mt-1">
+          <span class="text-white text-sm">_awayfromkeyboard</span>
+          <div class="flex gap-1 ml-1 opacity-80">
+             <div class="w-4 h-4 bg-purple-500 rounded-full"></div>
+             <div class="w-4 h-4 bg-green-500 rounded-full"></div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 mt-4">
+          <button class="flex-1 bg-[#5865f2] hover:bg-[#4752c4] text-white font-medium text-sm py-1.5 rounded transition-colors flex items-center justify-center gap-2">
+            Editar perfil
+          </button>
+          <button class="w-8 h-8 bg-[#3f4147] hover:bg-[#4e5058] rounded flex items-center justify-center transition-colors">
+             <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path></svg>
+          </button>
+        </div>
+
+        <div class="h-[1px] bg-[#3f4147] my-4"></div>
+
+        <div class="text-[#dbdee1] text-sm">Estoy AFK ✈</div>
+
+        <div class="mt-4 flex flex-col gap-1">
+          <span class="text-[11px] font-bold text-[#b5bac1] uppercase tracking-wide">Miembro desde</span>
+          <span class="text-[#dbdee1] text-sm">11 jun 2018</span>
+        </div>
+
+        <div class="mt-4 flex flex-col gap-2">
+          <span class="text-[11px] font-bold text-[#b5bac1] uppercase tracking-wide">Conexiones</span>
+          <div class="flex items-center gap-2 text-[#dbdee1] text-sm hover:bg-[#313338] p-1 rounded cursor-pointer transition-colors">
+            <div class="w-5 h-5 bg-orange-500 rounded-sm"></div> TSSFernan
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 p-8 flex flex-col bg-[#313338]">
+      
+      <div class="flex gap-6 border-b border-[#3f4147]">
+        <button class="text-white font-semibold pb-3 border-b-2 border-[#dbdee1]">Tablero</button>
+        <button class="text-[#b5bac1] font-medium pb-3 hover:text-[#dbdee1] transition-colors">Actividad</button>
+        <button class="text-[#b5bac1] font-medium pb-3 hover:text-[#dbdee1] transition-colors">Lista de deseos</button>
+      </div>
+
+      <div class="flex-1 flex flex-col items-center justify-center mt-6">
+         <h2 class="text-white text-lg font-bold mb-2">Personaliza tu perfil con widgets</h2>
+         <p class="text-[#b5bac1] text-sm text-center mb-6 max-w-sm">Elige entre nuestra biblioteca de widgets para compartir más sobre ti y tus intereses.</p>
+
+         <div class="grid grid-cols-2 gap-4 w-full max-w-md">
+            
+            <button class="bg-[#2b2d31] hover:bg-[#3f4147] border border-dashed border-[#4e5058] rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-colors h-[100px] group">
+              <div class="bg-[#4e5058] group-hover:bg-[#5865f2] rounded-full p-1 transition-colors">
+                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+              </div>
+              <span class="text-[#dbdee1] text-xs font-medium">Juego favorito</span>
+            </button>
+            
+            <button class="bg-[#2b2d31] hover:bg-[#3f4147] border border-dashed border-[#4e5058] rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-colors h-[100px] group">
+              <div class="bg-[#4e5058] group-hover:bg-[#5865f2] rounded-full p-1 transition-colors">
+                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+              </div>
+              <span class="text-[#dbdee1] text-xs font-medium">Juegos en rotación</span>
+            </button>
+
+         </div>
+      </div>
+    </div>
+  </div>
+</div>

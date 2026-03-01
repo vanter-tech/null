@@ -1,132 +1,140 @@
-<div class="absolute bottom-[60px] left-0 w-[300px] bg-[#2b2d31] rounded-lg shadow-2xl z-[1001] flex flex-col font-sans select-none cursor-default">
+@if (isPanelVisible) {
+  <div class="absolute bottom-[60px] left-0 w-[300px] bg-[#2b2d31] rounded-lg shadow-2xl z-[1001] flex flex-col font-sans select-none cursor-default">
 
-  <div class="h-[105px] w-full bg-[#c4b19f] rounded-t-lg relative">
+    <div class="h-[105px] w-full bg-[#c4b19f] rounded-t-lg relative">
     </div>
 
-  <div class="px-4 relative">
-    <div class="absolute -top-[45px] left-4 rounded-full bg-[#2b2d31] p-[6px]">
-      <div class="relative w-[80px] h-[80px] rounded-full overflow-hidden bg-gray-600">
-
+    <div class="px-4 relative">
+      <div class="absolute -top-[45px] left-4 rounded-full bg-[#2b2d31] p-[6px]">
+        
+        <div class="relative w-[80px] h-[80px] rounded-full overflow-hidden bg-gray-600 cursor-pointer hover:opacity-80 transition-opacity"
+             (click)="toggleProfilePreview($event)">
+        </div>
+        
+        <div class="absolute bottom-0 right-0 w-7 h-7 border-[4px] border-[#2b2d31] rounded-full pointer-events-none"
+             [class.bg-[#23a559]]="currentStatus === 'ONLINE'"
+             [class.bg-[#f0b232]]="currentStatus === 'AWAY'"
+             [class.bg-[#f23f43]]="currentStatus === 'DO_NOT_DISTURB'"
+             [class.bg-[#80848e]]="currentStatus === 'OFFLINE'">
+        </div>
       </div>
+    </div>
+
+    <div class="px-4 pt-12 pb-3">
+      <h1 class="text-white text-xl font-bold leading-tight">{{ username }}</h1>
+      <div class="text-[#dbdee1] text-sm leading-tight mt-1">_awayfromkeyboard</div>
+      <div class="text-white text-sm mt-3 flex items-center gap-1">
+        Estoy AFK ✈
+      </div>
+    </div>
+
+    <div class="px-4 pb-4 flex flex-col gap-3">
       
-      <div class="absolute bottom-0 right-0 w-7 h-7 border-[4px] border-[#2b2d31] rounded-full"
-           [class.bg-[#23a559]]="currentStatus === 'ONLINE'"
-           [class.bg-[#f0b232]]="currentStatus === 'AWAY'"
-           [class.bg-[#f23f43]]="currentStatus === 'DO_NOT_DISTURB'"
-           [class.bg-[#80848e]]="currentStatus === 'OFFLINE'">
+      <div class="bg-[#111214] p-3 rounded-lg flex flex-col gap-3">
+         <div class="flex justify-between items-center">
+           <span class="text-xs font-bold text-[#b5bac1] uppercase flex items-center gap-1">
+             Escuchando Spotify
+           </span>
+           <span class="text-[#b5bac1] cursor-pointer hover:text-white">...</span>
+         </div>
+         <div class="flex items-center gap-3">
+            <div class="w-14 h-14 bg-red-800 rounded-md"></div> 
+            <div class="flex flex-col flex-1">
+               <span class="text-white font-bold text-sm hover:underline cursor-pointer">Monster</span>
+               <span class="text-[#dbdee1] text-sm hover:underline cursor-pointer">Skillet</span>
+               <div class="flex items-center gap-2 mt-1">
+                 <span class="text-[#b5bac1] text-[11px]">00:45</span>
+                 <div class="flex-1 h-1 bg-[#4e5058] rounded-full overflow-hidden">
+                   <div class="w-1/3 h-full bg-white rounded-full"></div>
+                 </div>
+                 <span class="text-[#b5bac1] text-[11px]">02:58</span>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div class="bg-[#111214] rounded-lg p-1.5 flex flex-col">
+         
+         <button class="flex items-center justify-between px-2 py-2 text-[#dbdee1] hover:bg-[#2b2d31] hover:text-white rounded transition-colors group">
+           <div class="flex items-center gap-2">
+             <svg class="w-4 h-4 text-[#b5bac1] group-hover:text-[#dbdee1]" fill="currentColor" viewBox="0 0 24 24"><path d="M19.045 7.401c.378-.378.586-.88.586-1.414s-.208-1.036-.586-1.414l-1.586-1.586c-.378-.378-.88-.586-1.414-.586s-1.036.208-1.414.586l-1.586 1.586c-.378.378-.88.586-1.414.586s-1.036-.208-1.414-.586L9.621 2.399c-.378-.378-.88-.586-1.414-.586S7.171 2.021 6.793 2.399L2.399 6.793c-.378.378-.586.88-.586 1.414s.208 1.036.586 1.414l1.586 1.586c.378.378.88.586 1.414.586s1.036-.208 1.414-.586l1.586-1.586c.378-.378.88-.586 1.414-.586s1.036.208 1.414.586l2.012 2.012c.378.378.88.586 1.414.586s1.036-.208 1.414-.586l1.586-1.586c.378-.378.586-.88.586-1.414s-.208-1.036-.586-1.414l-1.586-1.586zM20.457 9.873l-7.33 7.33-2.122-2.122 7.33-7.33 2.122 2.122zM11.006 19.325l-2.122-2.122-4.243 4.243 2.122 2.122 4.243-4.243z"></path></svg>
+             <span class="text-sm font-medium">Editar perfil</span>
+           </div>
+           <span class="bg-[#f23f43] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wide">Nuevo</span>
+         </button>
+
+         <div class="h-[1px] bg-[#1e1f22] mx-2 my-0.5"></div>
+
+         <button (click)="toggleSubMenu($event)" class="relative flex items-center justify-between px-2 py-2 text-[#dbdee1] hover:bg-[#2b2d31] hover:text-white rounded transition-colors group">
+           <div class="flex items-center gap-2">
+             <div class="w-3.5 h-3.5 rounded-full"
+                  [class.bg-[#23a559]]="currentStatus === 'ONLINE'"
+                  [class.bg-[#f0b232]]="currentStatus === 'AWAY'"
+                  [class.bg-[#f23f43]]="currentStatus === 'DO_NOT_DISTURB'"
+                  [class.bg-[#80848e]]="currentStatus === 'OFFLINE'">
+             </div>
+             <span class="text-sm font-medium">
+               {{ currentStatus === 'ONLINE' ? 'En línea' : currentStatus === 'AWAY' ? 'Ausente' : currentStatus === 'DO_NOT_DISTURB' ? 'No molestar' : 'Invisible' }}
+             </span>
+           </div>
+           <svg class="w-4 h-4 text-[#b5bac1] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+
+           @if(showSubMenu) {
+             <div class="absolute -top-[40px] -right-[270px] w-[260px] bg-[#111214] border border-[#1e1f22] rounded-lg shadow-2xl p-2 z-[1002] flex flex-col gap-1 text-[#dbdee1] font-medium text-sm cursor-default" (click)="$event.stopPropagation()">
+                
+                <button (click)="selectStatus(statusEnum.Online, $event)" class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-[#4752c4] hover:text-white transition-colors w-full text-left">
+                  <div class="w-2.5 h-2.5 rounded-full bg-[#23a559]"></div>
+                  <span>En línea</span>
+                </button>
+                
+                <div class="h-[1px] bg-[#1e1f22] my-0.5 mx-2"></div>
+
+                <button (click)="selectStatus(statusEnum.Away, $event)" class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-[#4752c4] hover:text-white transition-colors w-full text-left">
+                  <div class="w-2.5 h-2.5 rounded-full bg-[#f0b232]"></div>
+                  <span>Ausente</span>
+                </button>
+
+                <button (click)="selectStatus(statusEnum.DoNotDisturb, $event)" class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-[#4752c4] hover:text-white transition-colors w-full text-left">
+                  <div class="w-2.5 h-2.5 rounded-full bg-[#f23f43]"></div>
+                  <div class="flex flex-col">
+                    <span>No molestar</span>
+                    <span class="text-xs font-normal opacity-70 mt-0.5">No recibirás notificaciones...</span>
+                  </div>
+                </button>
+
+                <button (click)="selectStatus(statusEnum.Offline, $event)" class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-[#4752c4] hover:text-white transition-colors w-full text-left group/inv">
+                  <div class="w-2.5 h-2.5 rounded-full bg-[#80848e] border-[2px] border-[#111214] group-hover/inv:border-[#4752c4]"></div>
+                  <div class="flex flex-col">
+                    <span>Invisible</span>
+                    <span class="text-xs font-normal opacity-70 mt-0.5">Aparecerás desconectado...</span>
+                  </div>
+                </button>
+             </div>
+           }
+         </button>
+
+         <div class="h-[1px] bg-[#1e1f22] mx-2 my-0.5"></div>
+
+         <button class="flex items-center justify-between px-2 py-2 text-[#dbdee1] hover:bg-[#2b2d31] hover:text-white rounded transition-colors group">
+           <div class="flex items-center gap-2">
+             <svg class="w-4 h-4 text-[#b5bac1] group-hover:text-[#dbdee1]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm0-14c-1.654 0-3 1.346-3 3s1.346 3 3 3 3-1.346 3-3-1.346-3-3-3zm0 4.5c-.827 0-1.5-.673-1.5-1.5s.673-1.5 1.5-1.5 1.5.673 1.5 1.5-.673 1.5-1.5 1.5zM12 13c-2.666 0-8 1.334-8 4v1h16v-1c0-2.666-5.334-4-8-4z"></path></svg>
+             <span class="text-sm font-medium">Cambiar de cuenta</span>
+           </div>
+           <svg class="w-4 h-4 text-[#b5bac1] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+         </button>
+         
+         <button class="flex items-center justify-between px-2 py-2 text-[#dbdee1] hover:bg-[#2b2d31] hover:text-white rounded transition-colors group">
+           <div class="flex items-center gap-2">
+             <svg class="w-4 h-4 text-[#b5bac1] group-hover:text-[#dbdee1]" fill="currentColor" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"></path></svg>
+             <span class="text-sm font-medium">Copiar ID del usuario</span>
+           </div>
+         </button>
+
       </div>
     </div>
   </div>
+}
 
-  <div class="px-4 pt-12 pb-3">
-    <h1 class="text-white text-xl font-bold leading-tight">{{ username }}</h1>
-    <div class="text-[#dbdee1] text-sm leading-tight mt-1">_awayfromkeyboard</div>
-    <div class="text-white text-sm mt-3 flex items-center gap-1">
-      Estoy AFK ✈
-    </div>
-  </div>
-
-  <div class="px-4 pb-4 flex flex-col gap-3">
-    
-    <div class="bg-[#111214] p-3 rounded-lg flex flex-col gap-3">
-       <div class="flex justify-between items-center">
-         <span class="text-xs font-bold text-[#b5bac1] uppercase flex items-center gap-1">
-           Escuchando Spotify
-         </span>
-         <span class="text-[#b5bac1] cursor-pointer hover:text-white">...</span>
-       </div>
-       <div class="flex items-center gap-3">
-          <div class="w-14 h-14 bg-red-800 rounded-md"></div> <div class="flex flex-col flex-1">
-             <span class="text-white font-bold text-sm hover:underline cursor-pointer">Monster</span>
-             <span class="text-[#dbdee1] text-sm hover:underline cursor-pointer">Skillet</span>
-             <div class="flex items-center gap-2 mt-1">
-               <span class="text-[#b5bac1] text-[11px]">00:45</span>
-               <div class="flex-1 h-1 bg-[#4e5058] rounded-full overflow-hidden">
-                 <div class="w-1/3 h-full bg-white rounded-full"></div>
-               </div>
-               <span class="text-[#b5bac1] text-[11px]">02:58</span>
-             </div>
-          </div>
-       </div>
-    </div>
-
-    <div class="bg-[#111214] rounded-lg p-1.5 flex flex-col">
-       
-       <button class="flex items-center justify-between px-2 py-2 text-[#dbdee1] hover:bg-[#2b2d31] hover:text-white rounded transition-colors group">
-         <div class="flex items-center gap-2">
-           <svg class="w-4 h-4 text-[#b5bac1] group-hover:text-[#dbdee1]" fill="currentColor" viewBox="0 0 24 24"><path d="M19.045 7.401c.378-.378.586-.88.586-1.414s-.208-1.036-.586-1.414l-1.586-1.586c-.378-.378-.88-.586-1.414-.586s-1.036.208-1.414.586l-1.586 1.586c-.378.378-.88.586-1.414.586s-1.036-.208-1.414-.586L9.621 2.399c-.378-.378-.88-.586-1.414-.586S7.171 2.021 6.793 2.399L2.399 6.793c-.378.378-.586.88-.586 1.414s.208 1.036.586 1.414l1.586 1.586c.378.378.88.586 1.414.586s1.036-.208 1.414-.586l1.586-1.586c.378-.378.88-.586 1.414-.586s1.036.208 1.414.586l2.012 2.012c.378.378.88.586 1.414.586s1.036-.208 1.414-.586l1.586-1.586c.378-.378.586-.88.586-1.414s-.208-1.036-.586-1.414l-1.586-1.586zM20.457 9.873l-7.33 7.33-2.122-2.122 7.33-7.33 2.122 2.122zM11.006 19.325l-2.122-2.122-4.243 4.243 2.122 2.122 4.243-4.243z"></path></svg>
-           <span class="text-sm font-medium">Editar perfil</span>
-         </div>
-         <span class="bg-[#f23f43] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wide">Nuevo</span>
-       </button>
-
-       <div class="h-[1px] bg-[#1e1f22] mx-2 my-0.5"></div>
-
-       <button (click)="toggleSubMenu($event)" class="relative flex items-center justify-between px-2 py-2 text-[#dbdee1] hover:bg-[#2b2d31] hover:text-white rounded transition-colors group">
-         <div class="flex items-center gap-2">
-           <div class="w-3.5 h-3.5 rounded-full"
-                [class.bg-[#23a559]]="currentStatus === 'ONLINE'"
-                [class.bg-[#f0b232]]="currentStatus === 'AWAY'"
-                [class.bg-[#f23f43]]="currentStatus === 'DO_NOT_DISTURB'"
-                [class.bg-[#80848e]]="currentStatus === 'OFFLINE'">
-           </div>
-           <span class="text-sm font-medium">
-             {{ currentStatus === 'ONLINE' ? 'En línea' : currentStatus === 'AWAY' ? 'Ausente' : currentStatus === 'DO_NOT_DISTURB' ? 'No molestar' : 'Invisible' }}
-           </span>
-         </div>
-         <svg class="w-4 h-4 text-[#b5bac1] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-
-         @if(showSubMenu) {
-           <div class="absolute top-0 -right-[265px] w-[260px] bg-[#111214] border border-[#1e1f22] rounded-lg shadow-2xl p-2 z-[1002] flex flex-col gap-1 text-[#dbdee1] font-medium text-sm cursor-default" (click)="$event.stopPropagation()">
-              
-              <button (click)="selectStatus(statusEnum.Online, $event)" class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-[#4752c4] hover:text-white transition-colors w-full text-left">
-                <div class="w-2.5 h-2.5 rounded-full bg-[#23a559]"></div>
-                <span>En línea</span>
-              </button>
-              
-              <div class="h-[1px] bg-[#1e1f22] my-0.5 mx-2"></div>
-
-              <button (click)="selectStatus(statusEnum.Away, $event)" class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-[#4752c4] hover:text-white transition-colors w-full text-left">
-                <div class="w-2.5 h-2.5 rounded-full bg-[#f0b232]"></div>
-                <span>Ausente</span>
-              </button>
-
-              <button (click)="selectStatus(statusEnum.DoNotDisturb, $event)" class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-[#4752c4] hover:text-white transition-colors w-full text-left">
-                <div class="w-2.5 h-2.5 rounded-full bg-[#f23f43]"></div>
-                <div class="flex flex-col">
-                  <span>No molestar</span>
-                  <span class="text-xs font-normal opacity-70 mt-0.5">No recibirás notificaciones...</span>
-                </div>
-              </button>
-
-              <button (click)="selectStatus(statusEnum.Offline, $event)" class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-[#4752c4] hover:text-white transition-colors w-full text-left group/inv">
-                <div class="w-2.5 h-2.5 rounded-full bg-[#80848e] border-[2px] border-[#111214] group-hover/inv:border-[#4752c4]"></div>
-                <div class="flex flex-col">
-                  <span>Invisible</span>
-                  <span class="text-xs font-normal opacity-70 mt-0.5">Aparecerás desconectado...</span>
-                </div>
-              </button>
-           </div>
-         }
-       </button>
-
-       <div class="h-[1px] bg-[#1e1f22] mx-2 my-0.5"></div>
-
-       <button class="flex items-center justify-between px-2 py-2 text-[#dbdee1] hover:bg-[#2b2d31] hover:text-white rounded transition-colors group">
-         <div class="flex items-center gap-2">
-           <svg class="w-4 h-4 text-[#b5bac1] group-hover:text-[#dbdee1]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm0-14c-1.654 0-3 1.346-3 3s1.346 3 3 3 3-1.346 3-3-1.346-3-3-3zm0 4.5c-.827 0-1.5-.673-1.5-1.5s.673-1.5 1.5-1.5 1.5.673 1.5 1.5-.673 1.5-1.5 1.5zM12 13c-2.666 0-8 1.334-8 4v1h16v-1c0-2.666-5.334-4-8-4z"></path></svg>
-           <span class="text-sm font-medium">Cambiar de cuenta</span>
-         </div>
-         <svg class="w-4 h-4 text-[#b5bac1] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-       </button>
-       
-       <button class="flex items-center justify-between px-2 py-2 text-[#dbdee1] hover:bg-[#2b2d31] hover:text-white rounded transition-colors group">
-         <div class="flex items-center gap-2">
-           <svg class="w-4 h-4 text-[#b5bac1] group-hover:text-[#dbdee1]" fill="currentColor" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"></path></svg>
-           <span class="text-sm font-medium">Copiar ID del usuario</span>
-         </div>
-       </button>
-
-    </div>
-  </div>
-</div>
+@if (showFullModal) {
+  <app-user-pop-up-profile-preview (close)="closeEverything()" ></app-user-pop-up-profile-preview>
+}
