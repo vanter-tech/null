@@ -4,6 +4,7 @@ import com.example.demo.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -70,5 +71,15 @@ public class Server {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> members;
+
+    /**
+     * Lista de canales de texto o voz que pertenecen a este servidor.
+     * <p>
+     * Relación Uno-a-Muchos: Si el servidor se elimina, se eliminan en cascada
+     * todos sus canales (CascadeType.ALL y orphanRemoval = true).
+     * </p>
+     */
+    @OneToMany(mappedBy = "server", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Channel> channels;
 
 }

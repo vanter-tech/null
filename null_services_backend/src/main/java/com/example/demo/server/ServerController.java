@@ -72,4 +72,21 @@ public class ServerController {
     ){
         return ResponseEntity.ok(serverService.createServer(request, connectedUser));
     }
+
+    /**
+     * Recupera toda la información de un servidor específico, incluyendo sus canales.
+     * <p>
+     * Se invoca cuando el usuario hace clic en el icono de un servidor en la barra lateral.
+     * </p>
+     *
+     * @param serverId El ID del servidor a consultar.
+     * @return ResponseEntity con los detalles del servidor y sus canales.
+     */
+    @GetMapping("/{serverId}")
+    public ResponseEntity<ServerResponse> findServerById(
+            @PathVariable Long serverId
+    ){
+        return ResponseEntity.ok(serverService.findById(serverId));
+    }
+
 }

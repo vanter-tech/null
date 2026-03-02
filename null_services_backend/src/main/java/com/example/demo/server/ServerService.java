@@ -35,22 +35,27 @@ public class ServerService {
      * @param connectedUser Objeto de autenticación del usuario que solicita la creación.
      * @return {@link ServerResponse} con los datos del servidor persistido.
      */
-    public ServerResponse createServer(
-            ServerRequest request,
-            Authentication connectedUser
-    ){
-        // Obtenemos el usuario actual del principal de seguridad
+
+    public ServerResponse createServer(ServerRequest request, Authentication connectedUser) {
         User user = (User) connectedUser.getPrincipal();
 
         Server newServer = Server.builder()
                 .name(request.getName())
                 .imageUrl(request.getImageUrl())
                 .owner(user)
-                .members(Set.of(user)) // Inicia la comunidad contigo mismo
+                .members(Set.of(user))
                 .build();
 
-        Server savedServer = serverRepository.save(newServer);
+        // 🚀 Le creamos su canal por defecto
+        Channel defaultChannel = Channel.builder()
+                .name("general")
+                .type("TEXT")
+                .server(newServer)
+                .build();
 
+        newServer.setChannels(List.of(defaultChannel));
+
+        Server savedServer = serverRepository.save(newServer);
         return mapToResponse(savedServer);
     }
 
@@ -98,11 +103,30 @@ public class ServerService {
      * @param server La entidad a transformar.
      * @return El objeto de respuesta listo para JSON.
      */
+
     private ServerResponse mapToResponse(Server server) {
+        // Mapeamos la lista de Entidades Channel a ChannelResponse
+        List<ChannelResponse> channelResponses = server.getChannels() != null
+                ? server.getChannels().stream()
+                .map(channel -> ChannelResponse.builder()
+                        .id(channel.getId())
+                        .name(channel.getName())
+                        .type(channel.getType())
+                        .build())
+                .collect(Collectors.toList())
+                : List.of();
+
         return ServerResponse.builder()
                 .id(server.getId())
                 .name(server.getName())
                 .imageUrl(server.getImageUrl())
+                .channels(channelResponses) // Agregamos los canales al DTO
                 .build();
+    }
+
+    public ServerResponse findById(Long serverId) {
+        Server server = serverRepository.findById(serverId)
+                .orElseThrow(() -> new RuntimeException("Servidor no encontrado"));
+        return mapToResponse(server);
     }
 }

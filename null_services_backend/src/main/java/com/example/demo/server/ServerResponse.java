@@ -2,6 +2,8 @@ package com.example.demo.server;
 
 import lombok.*;
 
+import java.util.List;
+
 /**
  * DTO (Data Transfer Object) optimizado para el envío de información de servidores al cliente.
  * <p>
@@ -37,4 +39,10 @@ public class ServerResponse {
      * Se utiliza en Angular para renderizar los iconos circulares de la barra lateral.
      */
     private String imageUrl;
+
+    /**
+     * Lista de canales pertenecientes al servidor.
+     * Mapeados a DTO para evitar recursividad y exponer solo lo necesario.
+     */
+    private List<ChannelResponse> channels;
 }
