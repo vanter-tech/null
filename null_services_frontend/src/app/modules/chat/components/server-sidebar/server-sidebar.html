@@ -17,25 +17,37 @@
 
   @for (server of servers; track server.id) {
 
-    <div class="group relative flex items-center justify-center w-full cursor-pointer mt-2">
-      <div class="absolute left-0 w-1 bg-white rounded-r-lg opacity-0 transition-all duration-300 h-2 group-hover:opacity-100 group-hover:h-5"></div>
-      
-      <div class="w-12 h-12 bg-[#313338] text-[#DBDEE1] group-hover:text-white rounded-[24px] group-hover:rounded-[16px] group-hover:bg-[#5865F2] transition-all duration-300 flex items-center justify-center font-semibold text-[18px] relative shadow-sm">
-        
+    <a [routerLink]="['/home/server', server.id]"
+      routerLinkActive="active"
+      #rla="routerLinkActive"
+      class="group relative flex items-center justify-center w-full cursor-pointer mt-2  outline-none">
+  
+      <div class="absolute left-0 w-1 bg-white rounded-r-lg transition-all duration-300"
+          [ngClass]="{
+            'opacity-100 h-10': rla.isActive,
+            'opacity-0 h-2 group-hover:opacity-100 group-hover:h-5': !rla.isActive}">
+      </div>
+  
+      <div class="w-12 h-12 transition-all duration-300 flex items-center justify-center font-semibold text-[18px] relative shadow-sm"
+          [ngClass]="{
+            'bg-[#5865F2] text-white rounded-[16px]': rla.isActive,
+            'bg-[#313338] text-[#DBDEE1] rounded-[24px] group-hover:rounded-[16px] group-hover:bg-[#5865F2] group-hover:text-white': !rla.isActive
+       }">
+    
         {{ server.name?.charAt(0) | uppercase }}
 
         <div class="absolute -bottom-1 -right-1 bg-[#F23F42] border-[4px] border-[#1E1F22] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center flex items-center justify-center">
           2
         </div>
 
-      </div>
+       </div>
 
       <div class="absolute left-[74px] bg-[#111214] text-[#DBDEE1] text-[15px] font-bold px-3 py-1.5 rounded-[6px] shadow-xl whitespace-nowrap opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 pointer-events-none z-50 flex items-center">
         <div class="absolute -left-1 w-2.5 h-2.5 bg-[#111214] rotate-45 rounded-sm"></div>
         <span class="relative z-10">{{ server.name }}</span>
       </div>
 
-    </div>
+    </a>
   }
 
   <div class="w-8 h-[2px] bg-[#35363C] rounded-full my-2"></div>
