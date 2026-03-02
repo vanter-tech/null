@@ -9,12 +9,9 @@
  */
 
 
-export interface Message { 
-    id?: string;
-    content?: string;
-    sendId?: number;
-    conversationId?: number;
-    channelId?: number;
-    timestamp?: string;
+export interface ChannelResponse { 
+    id?: number;
+    name?: string;
+    type?: string;
 }
 

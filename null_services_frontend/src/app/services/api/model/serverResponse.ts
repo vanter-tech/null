@@ -7,11 +7,15 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { MemberResponse } from './memberResponse';
+import { ChannelResponse } from './channelResponse';
 
 
 export interface ServerResponse { 
     id?: number;
     name?: string;
     imageUrl?: string;
+    channels?: Array<ChannelResponse>;
+    members?: Array<MemberResponse>;
 }
 

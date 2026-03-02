@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { ServerControllerService, ServerResponse } from '../../../../services/api';
 import { DiscoverSidebar } from '../../components/discover-sidebar/discover-sidebar';
 
@@ -16,7 +17,8 @@ export class DiscoverServers implements OnInit {
 
   constructor(
     private serverService: ServerControllerService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -32,6 +34,26 @@ export class DiscoverServers implements OnInit {
       },
       error: (error) => {
         console.error('Error loading public servers:', error);
+      }
+    })
+  }
+
+  joinServer(serverId: number | undefined, event: Event){
+    if(!serverId) return
+
+    event.stopPropagation()
+
+    this.serverService.joinServer(serverId).subscribe({
+      next: (response) => {
+        console.log('You has join the server', response);
+
+        window.dispatchEvent(new CustomEvent('server-joined'));
+
+        this.router.navigate(['/home/server', serverId])
+      },
+      error: (err) => {
+        console.log('Failed joining server', err);
+        
       }
     })
   }

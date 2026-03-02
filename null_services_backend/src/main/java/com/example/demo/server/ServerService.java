@@ -116,11 +116,23 @@ public class ServerService {
                 .collect(Collectors.toList())
                 : List.of();
 
+        List<MemberResponse> memberResponses = server.getMembers() != null
+                ? server.getMembers().stream()
+                // Asegúrate de usar los métodos correctos de tu entidad User (getNickname, getUsername, etc.)
+                .map(member -> MemberResponse.builder()
+                        .id(member.getId())
+                        .username(member.getUsername()) // O el campo que uses en tu User
+                        .imageUrl(member.getImageUrl()) // Si tienes avatar
+                        .build())
+                .collect(Collectors.toList())
+                : List.of();
+
         return ServerResponse.builder()
                 .id(server.getId())
                 .name(server.getName())
                 .imageUrl(server.getImageUrl())
-                .channels(channelResponses) // Agregamos los canales al DTO
+                .channels(channelResponses)
+                .members(memberResponses)// Agregamos los canales al DTO
                 .build();
     }
 
@@ -128,5 +140,26 @@ public class ServerService {
         Server server = serverRepository.findById(serverId)
                 .orElseThrow(() -> new RuntimeException("Servidor no encontrado"));
         return mapToResponse(server);
+    }
+
+    /**
+     * Permite a un usuario unirse a un servidor existente.
+     *
+     * @param serverId ID del servidor al que se quiere unir.
+     * @param connectedUser El usuario autenticado actual.
+     * @return El servidor actualizado.
+     */
+    public ServerResponse joinServer(Long serverId, Authentication connectedUser) {
+        User user = (User) connectedUser.getPrincipal();
+
+        Server server = serverRepository.findById(serverId)
+                .orElseThrow(() -> new RuntimeException("¡Servidor no encontrado!"));
+
+        // Añadimos el usuario al Set de miembros (como es un Set, si ya está, no se duplica)
+        server.getMembers().add(user);
+
+        Server savedServer = serverRepository.save(server);
+
+        return mapToResponse(savedServer);
     }
 }

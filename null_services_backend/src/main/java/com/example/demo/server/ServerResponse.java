@@ -45,4 +45,10 @@ public class ServerResponse {
      * Mapeados a DTO para evitar recursividad y exponer solo lo necesario.
      */
     private List<ChannelResponse> channels;
+
+    /**
+     * Lista de miembros que pertenecen a este servidor.
+     * Mapeados a DTO para proteger los datos de la entidad User.
+     */
+    private List<MemberResponse> members;
 }

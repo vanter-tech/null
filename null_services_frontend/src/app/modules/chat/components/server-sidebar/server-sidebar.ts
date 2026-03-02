@@ -30,6 +30,9 @@ export class ServerSidebar implements OnInit {
 
   ngOnInit() {
     this.loadServers();
+    window.addEventListener('server-joined', () => {
+    this.loadServers();
+  });
   }
 
   loadServers() {

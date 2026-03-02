@@ -89,4 +89,18 @@ public class ServerController {
         return ResponseEntity.ok(serverService.findById(serverId));
     }
 
+    /**
+     * Endpoint para que un usuario se una a una comunidad.
+     *
+     * @param serverId El ID del servidor.
+     * @param connectedUser El usuario que hace la petición.
+     */
+    @PostMapping("/{serverId}/join")
+    public ResponseEntity<ServerResponse> joinServer(
+            @PathVariable Long serverId,
+            Authentication connectedUser
+    ){
+        return ResponseEntity.ok(serverService.joinServer(serverId, connectedUser));
+    }
+
 }

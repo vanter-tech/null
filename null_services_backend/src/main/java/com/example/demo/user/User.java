@@ -52,6 +52,9 @@ public class User implements UserDetails, Principal {
     private String password;
     private LocalDate dateOfBirth;
 
+    // NUEVO: Campo para la futura foto de perfil
+    private String imageUrl;
+
     /**
      * Estado actual de presencia del usuario.
      * <p>
