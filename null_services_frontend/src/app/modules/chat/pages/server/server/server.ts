@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 
 import { ServerControllerService } from '../../../../../services/api';
 import { ServerResponse } from '../../../../../services/api';
@@ -19,8 +19,11 @@ export class Server implements OnInit{
   activeChannelId: number | null = null;
   isMembersListOpen: boolean = true;
 
+  isServerMenuOpen: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private serverService: ServerControllerService,
     private cdr: ChangeDetectorRef
   ){}
@@ -36,6 +39,10 @@ export class Server implements OnInit{
   }
 
   loadServerData(id: number){
+
+    this.serverData = null;
+    this.isServerMenuOpen = false;
+
     this.serverService.findServerById(id).subscribe({
       next: (data: ServerResponse) => {
         console.log('Server load successfully', data);
@@ -54,6 +61,29 @@ export class Server implements OnInit{
         
       }
     })
+  }
+
+
+  leaveServer(): void{
+    if(!this.currentServerId) return
+
+    this.serverService.leaveServer(this.currentServerId).subscribe({
+      next: () => {
+        console.log('You has leave the server');
+        window.dispatchEvent(new CustomEvent('server-joined'))
+        this.router.navigate(['/home'])
+      },
+      error: (err) => {
+        console.log('failed leaving the server', err);
+        
+      }
+    })
+
+  }
+
+
+  toggleServerMenu(): void {
+    this.isServerMenuOpen = !this.isServerMenuOpen;
   }
 
   selectChannel(channelId: number | undefined): void{
