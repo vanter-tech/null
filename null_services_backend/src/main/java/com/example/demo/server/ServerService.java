@@ -162,4 +162,28 @@ public class ServerService {
 
         return mapToResponse(savedServer);
     }
+
+    /**
+     * Permite a un usuario abandonar un servidor.
+     * Si el usuario es el creador (owner), no se le permite abandonar.
+     *
+     * @param serverId ID del servidor a abandonar.
+     * @param connectedUser El usuario que hace la petición.
+     */
+    public void leaveServer(Long serverId, Authentication connectedUser) {
+        User user = (User) connectedUser.getPrincipal();
+
+        Server server = serverRepository.findById(serverId)
+                .orElseThrow(() -> new RuntimeException("¡Servidor no encontrado!"));
+
+        // 🚀 Regla de negocio: El dueño no puede abandonar su propio barco
+        if (server.getOwner().getId().equals(user.getId())) {
+            throw new RuntimeException("El propietario no puede abandonar el servidor. Debes eliminarlo.");
+        }
+
+        // 🚀 Removemos al usuario de la lista de miembros
+        server.getMembers().removeIf(member -> member.getId().equals(user.getId()));
+
+        serverRepository.save(server);
+    }
 }

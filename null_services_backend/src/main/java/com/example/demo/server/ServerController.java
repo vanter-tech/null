@@ -103,4 +103,18 @@ public class ServerController {
         return ResponseEntity.ok(serverService.joinServer(serverId, connectedUser));
     }
 
+    /**
+     * Endpoint para que un usuario abandone una comunidad.
+     *
+     * @param serverId El ID del servidor a abandonar.
+     */
+    @PostMapping("/{serverId}/leave")
+    public ResponseEntity<Void> leaveServer(
+            @PathVariable Long serverId,
+            Authentication connectedUser
+    ){
+        serverService.leaveServer(serverId, connectedUser);
+        return ResponseEntity.ok().build();
+    }
+
 }
