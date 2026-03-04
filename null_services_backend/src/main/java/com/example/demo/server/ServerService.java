@@ -206,7 +206,7 @@ public class ServerService {
         Channel newChannel = Channel.builder()
                 .name(formattedName)
                 .type(request.getType() != null ? request.getType() : "TEXT")
-                .isPrivate(request.isPrivate())
+                .isPrivate(request.getIsPrivate())
                 .server(server)
                 .build();
 

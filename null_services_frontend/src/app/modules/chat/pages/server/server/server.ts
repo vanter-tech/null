@@ -7,8 +7,10 @@ import { Subscription } from 'rxjs';
 import { ServerControllerService, ServerResponse, MessageControllerService, Message, AuthenticationService } from '../../../../../services/api';
 import { Websocket } from '../../../../../services/api/websocket/websocket';
 import { AuthService } from '../../../../../services/api/authservice/auth-service';
-
 import { Token } from '../../../../../services/api/token/token';
+
+// 🚀 IMPORTAMOS EL NUEVO COMPONENTE (Ajusta la ruta si es necesario)
+import { CreateChannelModal } from '../../../components/modals/create-channel-modal/create-channel-modal/create-channel-modal';
 
 /**
  * Componente principal para la gestión de servidores.
@@ -17,7 +19,8 @@ import { Token } from '../../../../../services/api/token/token';
 @Component({
   selector: 'app-server',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  // 🚀 AÑADIMOS EL MODAL A LOS IMPORTS DEL COMPONENTE
+  imports: [CommonModule, RouterModule, FormsModule, CreateChannelModal],
   templateUrl: './server.html',
   styleUrl: './server.css',
 })
@@ -33,7 +36,6 @@ export class Server implements OnInit, OnDestroy {
     return Number(sendId) === Number(this.myUserId);
   }
   
-
   // Estado del Servidor
   currentServerId: number | null = null;
   serverData: ServerResponse | null = null;
@@ -65,7 +67,6 @@ export class Server implements OnInit, OnDestroy {
   ) {
     // Recuperamos el ID del usuario desde nuestro servicio centralizado
     this.myUserId = this.authService.getMyUserId()
-  
   }
 
   ngOnInit(): void {
@@ -181,6 +182,42 @@ export class Server implements OnInit, OnDestroy {
       }
     });
   }
+
+
+  // ==========================================
+  // 🚀 LÓGICA DEL MODAL CLON (Crear Canal)
+  // ==========================================
+  
+  isCreateChannelModalOpen: boolean = false;
+
+  openCreateChannelModal(): void {
+    this.isCreateChannelModalOpen = true;
+  }
+
+  /**
+   * Recibe el evento emitido por el componente hijo (el modal)
+   * con el objeto del nuevo canal ya guardado en la base de datos.
+   */
+  onChannelCreated(newChannel: any): void {
+    // 1. Cerramos el modal
+    this.isCreateChannelModalOpen = false; 
+    
+    // 2. Inyectamos visualmente el canal en la barra lateral
+    if (this.serverData) {
+      if (!this.serverData.channels) {
+        this.serverData.channels = [];
+      }
+      this.serverData.channels.push(newChannel);
+    }
+    
+    // 3. Si el canal es de texto, saltamos automáticamente a él para empezar a chatear
+    if (newChannel.type === 'TEXT') {
+      this.selectChannel(newChannel.id);
+    }
+    
+    this.cdr.detectChanges();
+  }
+
 
   /**
    * Realiza el scroll automático al final del contenedor de mensajes.

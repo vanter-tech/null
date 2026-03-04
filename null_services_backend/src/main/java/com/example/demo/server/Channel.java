@@ -45,6 +45,6 @@ public class Channel {
 
     //NUEVO: Para saber si el canal tiene "candadito"
     @Column(name = "is_private")
-    private boolean isPrivate = false;
+    private Boolean isPrivate = false;
 
 }

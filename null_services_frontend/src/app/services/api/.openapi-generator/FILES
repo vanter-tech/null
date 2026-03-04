@@ -15,6 +15,7 @@ git_push.sh
 index.ts
 model/authenticationRequest.ts
 model/authenticationResponse.ts
+model/channelRequest.ts
 model/channelResponse.ts
 model/conversationResponse.ts
 model/friendRequestDTO.ts

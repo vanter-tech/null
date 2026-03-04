@@ -9,9 +9,8 @@
  */
 
 
-export interface ChannelResponse { 
-    id?: number;
-    name?: string;
+export interface ChannelRequest { 
+    name: string;
     type?: string;
     isPrivate?: boolean;
 }

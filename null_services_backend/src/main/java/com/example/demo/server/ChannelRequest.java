@@ -16,5 +16,5 @@ public class ChannelRequest {
     @Builder.Default
     private String type = "TEXT";
 
-    private boolean isPrivate;
+    private Boolean isPrivate;
 }

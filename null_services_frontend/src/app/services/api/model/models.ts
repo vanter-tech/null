@@ -1,5 +1,6 @@
 export * from './authenticationRequest';
 export * from './authenticationResponse';
+export * from './channelRequest';
 export * from './channelResponse';
 export * from './conversationResponse';
 export * from './friendRequestDTO';
