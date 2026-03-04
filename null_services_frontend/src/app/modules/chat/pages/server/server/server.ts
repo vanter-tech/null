@@ -8,6 +8,8 @@ import { ServerControllerService, ServerResponse, MessageControllerService, Mess
 import { Websocket } from '../../../../../services/api/websocket/websocket';
 import { AuthService } from '../../../../../services/api/authservice/auth-service';
 
+import { Token } from '../../../../../services/api/token/token';
+
 /**
  * Componente principal para la gestión de servidores.
  * Controla la visualización de canales, lista de miembros y la lógica de chat en tiempo real.
@@ -58,10 +60,12 @@ export class Server implements OnInit, OnDestroy {
     private messageService: MessageControllerService,
     private authService: AuthService,
     private ws: Websocket,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private tokenService: Token
   ) {
     // Recuperamos el ID del usuario desde nuestro servicio centralizado
-    this.myUserId = (this.authService as any).currentUserSubject?.value?.id || 0;
+    this.myUserId = this.authService.getMyUserId()
+  
   }
 
   ngOnInit(): void {
@@ -82,6 +86,9 @@ export class Server implements OnInit, OnDestroy {
   loadServerData(id: number): void {
     this.serverData = null;
     this.isServerMenuOpen = false;
+
+    this.messages = [];
+    this.activeChannelId = null;
 
     this.serverService.findServerById(id).subscribe({
       next: (data: ServerResponse) => {

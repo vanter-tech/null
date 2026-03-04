@@ -1,51 +1,66 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-// 🚀 Asegúrate de importar AuthenticationResponse desde tu ruta de la API
 import { AuthenticationResponse } from '../model/authenticationResponse';
+import { Token } from '../token/token'; // 🚀 Importa tu servicio de token
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
 
-  
-  // 1. Buscamos el objeto completo en localStorage (si existe)
   private getInitialUser(): AuthenticationResponse | null {
     const storedUser = localStorage.getItem('currentUser');
     return storedUser ? JSON.parse(storedUser) : null;
   }
 
-  // 2. El Subject ahora guarda el objeto AuthenticationResponse
   private currentUserSubject = new BehaviorSubject<AuthenticationResponse | null>(this.getInitialUser());
-  
-  // 3. Este es el observable al que se van a suscribir tu panel y tu modal
   public currentUser$ = this.currentUserSubject.asObservable();
-
-  // 4. (Opcional) Mantenemos nickname$ por si lo usas en otros componentes y no quieres romperlos hoy
   public nickname$ = new BehaviorSubject<string>(this.getInitialUser()?.nickname || 'Usuario').asObservable();
 
-  constructor() {}
+  constructor(private tokenService: Token) {} // 🚀 Inyectamos el Token Service aquí
 
-  // 🚀 Reemplaza a setNickname: Guarda TODO el objeto (Se llama desde el Login)
+  // 🚀 NUEVO: Getter público para obtener el usuario actual sin suscribirse
+  public get currentUserValue(): AuthenticationResponse | null {
+    return this.currentUserSubject.value;
+  }
+
+  // 🚀 NUEVO: Método centralizado para obtener el ID ultra-seguro
+  public getMyUserId(): number {
+    // 1. Intentamos sacarlo del objeto guardado (lo más rápido)
+    const user = this.currentUserValue;
+    if (user && (user as any).id) {
+      return (user as any).id;
+    }
+
+    // 2. Fallback: Si el objeto no tiene el ID, decodificamos el Token centralizadamente
+    const tokenStr = this.tokenService.token;
+    if (tokenStr) {
+      try {
+        const payload = JSON.parse(atob(tokenStr.split('.')[1]));
+        return payload.userId || payload.id || 0; // Ajusta según el nombre en tu token
+      } catch (e) {
+        console.error('Error decodificando token en AuthService', e);
+      }
+    }
+    return 0; // Si todo falla, devuelve 0
+  }
+
   setCurrentUser(user: AuthenticationResponse) {
     localStorage.setItem('currentUser', JSON.stringify(user));
     this.currentUserSubject.next(user);
   }
 
-  // 🚀 NUEVO: Actualiza solo el estado y notifica a todos (Se llama desde el user-panel)
   updateLocalStatus(status: AuthenticationResponse.StatusEnum) {
     const current = this.currentUserSubject.value;
     if (current) {
       const updatedUser = { ...current, status: status };
-      this.setCurrentUser(updatedUser); // Re-guarda y emite el cambio
+      this.setCurrentUser(updatedUser);
     }
   }
 
-  // 🚀 Limpia todo al cerrar sesión
   clearSesion() {
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
   }
-
 }
