@@ -9,8 +9,8 @@ import { Websocket } from '../../../../../services/api/websocket/websocket';
 import { AuthService } from '../../../../../services/api/authservice/auth-service';
 import { Token } from '../../../../../services/api/token/token';
 
-// 🚀 IMPORTAMOS EL NUEVO COMPONENTE (Ajusta la ruta si es necesario)
 import { CreateChannelModal } from '../../../components/modals/create-channel-modal/create-channel-modal/create-channel-modal';
+import { DeleteServerModal } from '../../../components/modals/delete-server-modal/delete-server-modal/delete-server-modal';
 
 /**
  * Componente principal para la gestión de servidores.
@@ -19,18 +19,13 @@ import { CreateChannelModal } from '../../../components/modals/create-channel-mo
 @Component({
   selector: 'app-server',
   standalone: true,
-  // 🚀 AÑADIMOS EL MODAL A LOS IMPORTS DEL COMPONENTE
-  imports: [CommonModule, RouterModule, FormsModule, CreateChannelModal],
+  imports: [CommonModule, RouterModule, FormsModule, CreateChannelModal, DeleteServerModal],
   templateUrl: './server.html',
   styleUrl: './server.css',
 })
 export class Server implements OnInit, OnDestroy {
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
-  /**
-   * Compara de forma segura si el mensaje es del usuario actual.
-   * Usamos Number() para evitar errores si uno es String y el otro Number.
-   */
   isItMe(sendId: any): boolean {
     if (!sendId || !this.myUserId) return false;
     return Number(sendId) === Number(this.myUserId);
@@ -50,9 +45,7 @@ export class Server implements OnInit, OnDestroy {
   chatInput: string = '';
   myUserId!: number;
 
-  /** Suscripción activa al topic de WebSocket del canal */
   private topicSubscription?: Subscription;
-  /** Suscripción a los cambios de parámetros de la URL */
   private routeSub?: Subscription;
 
   constructor(
@@ -65,12 +58,10 @@ export class Server implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private tokenService: Token
   ) {
-    // Recuperamos el ID del usuario desde nuestro servicio centralizado
     this.myUserId = this.authService.getMyUserId()
   }
 
   ngOnInit(): void {
-    // Escuchamos cambios en la URL (al cambiar de un servidor a otro)
     this.routeSub = this.route.paramMap.subscribe(param => {
       const idStr = param.get('serverId');
       if (idStr) {
@@ -80,10 +71,6 @@ export class Server implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Carga la información completa del servidor y selecciona el primer canal por defecto.
-   * @param id ID del servidor a cargar.
-   */
   loadServerData(id: number): void {
     this.serverData = null;
     this.isServerMenuOpen = false;
@@ -95,7 +82,6 @@ export class Server implements OnInit, OnDestroy {
       next: (data: ServerResponse) => {
         this.serverData = data;
         if (data.channels && data.channels.length > 0) {
-          // Al entrar al servidor, seleccionamos el primer canal automáticamente
           this.selectChannel(data.channels[0].id);
         } else {
           this.activeChannelId = null;
@@ -106,10 +92,6 @@ export class Server implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Cambia el canal activo, carga su historial y actualiza la suscripción al WebSocket.
-   * @param channelId ID del canal seleccionado.
-   */
   selectChannel(channelId: number | undefined): void {
     if (channelId === undefined) return;
     
@@ -118,9 +100,6 @@ export class Server implements OnInit, OnDestroy {
     this.connectToChannelTopic(channelId);
   }
 
-  /**
-   * Carga el historial de mensajes de MongoDB para el canal específico.
-   */
   private loadChannelHistory(channelId: number): void {
     this.messageService.getChannelHistory(channelId as any).subscribe({
       next: (history) => {
@@ -132,9 +111,6 @@ export class Server implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Gestiona la conexión en tiempo real mediante WebSockets (vía Kafka).
-   */
   private connectToChannelTopic(channelId: number): void {
     if (this.topicSubscription) {
       this.topicSubscription.unsubscribe();
@@ -144,7 +120,6 @@ export class Server implements OnInit, OnDestroy {
     this.topicSubscription = this.ws.rxStomp.watch(topic).subscribe((message) => {
       const receivedMsg: Message = JSON.parse(message.body);
       
-      // Verificación de duplicados para evitar eco del socket
       if (!this.messages.some(m => m.id === receivedMsg.id)) {
         this.messages.push(receivedMsg);
         this.cdr.detectChanges();
@@ -153,20 +128,17 @@ export class Server implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Envía un nuevo mensaje al canal actual.
-   */
   sendMessage(): void {
     if (!this.chatInput.trim() || !this.activeChannelId) return;
 
     const payload: Message = {
       content: this.chatInput,
-      channelId: this.activeChannelId as any, // Discriminador para el backend
+      channelId: this.activeChannelId as any,
       sendId: this.myUserId
     };
 
     const tempInput = this.chatInput;
-    this.chatInput = ''; // Limpieza rápida del input (Optimistic UI)
+    this.chatInput = ''; 
 
     this.messageService.sendMessage(payload).subscribe({
       next: (savedMsg) => {
@@ -178,11 +150,10 @@ export class Server implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error sending message', err);
-        this.chatInput = tempInput; // Revertimos en caso de error
+        this.chatInput = tempInput;
       }
     });
   }
-
 
   // ==========================================
   // 🚀 LÓGICA DEL MODAL CLON (Crear Canal)
@@ -194,15 +165,9 @@ export class Server implements OnInit, OnDestroy {
     this.isCreateChannelModalOpen = true;
   }
 
-  /**
-   * Recibe el evento emitido por el componente hijo (el modal)
-   * con el objeto del nuevo canal ya guardado en la base de datos.
-   */
   onChannelCreated(newChannel: any): void {
-    // 1. Cerramos el modal
     this.isCreateChannelModalOpen = false; 
     
-    // 2. Inyectamos visualmente el canal en la barra lateral
     if (this.serverData) {
       if (!this.serverData.channels) {
         this.serverData.channels = [];
@@ -210,7 +175,6 @@ export class Server implements OnInit, OnDestroy {
       this.serverData.channels.push(newChannel);
     }
     
-    // 3. Si el canal es de texto, saltamos automáticamente a él para empezar a chatear
     if (newChannel.type === 'TEXT') {
       this.selectChannel(newChannel.id);
     }
@@ -218,10 +182,6 @@ export class Server implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-
-  /**
-   * Realiza el scroll automático al final del contenedor de mensajes.
-   */
   private scrollToBottom(): void {
     try {
       if (this.scrollContainer) {
@@ -230,13 +190,42 @@ export class Server implements OnInit, OnDestroy {
     } catch (err) {}
   }
 
-  /**
-   * Obtiene el nombre del canal activo para mostrarlo en la cabecera.
-   */
   getActiveChannelName(): string {
     if (!this.serverData?.channels || !this.activeChannelId) return 'general';
     const channel = this.serverData.channels.find(c => c.id === this.activeChannelId);
     return channel?.name || 'general';
+  }
+
+  isOwner(): boolean {
+    if (!this.serverData || !this.serverData.ownerId || !this.myUserId) return false;
+    return Number(this.serverData.ownerId) === Number(this.myUserId);
+  }
+
+  // ==========================================
+  // 💥 LÓGICA DEL MODAL ELIMINAR SERVIDOR
+  // ==========================================
+  isDeleteServerModalOpen: boolean = false;
+
+  openDeleteServerModal(): void {
+    this.isServerMenuOpen = false; // Cerramos el menú desplegable superior
+    this.isDeleteServerModalOpen = true; // Abrimos el modal oscuro
+  }
+
+  /**
+   * Esta función se ejecuta ÚNICAMENTE cuando el modal hijo nos confirma 
+   * que el usuario escribió el nombre exacto y apretó el botón rojo.
+   */
+  executeServerDeletion(): void {
+    if (!this.currentServerId) return;
+
+    this.serverService.deleteServer(this.currentServerId).subscribe({
+      next: () => {
+        this.isDeleteServerModalOpen = false;
+        window.dispatchEvent(new CustomEvent('server-joined'));
+        this.router.navigate(['/home']);
+      },
+      error: (err) => console.error('Error al eliminar el servidor', err)
+    });
   }
 
   leaveServer(): void {

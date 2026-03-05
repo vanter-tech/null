@@ -16,6 +16,7 @@ export interface ServerResponse {
     name?: string;
     imageUrl?: string;
     channels?: Array<ChannelResponse>;
+    ownerId?: number;
     members?: Array<MemberResponse>;
 }
 

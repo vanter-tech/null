@@ -13,12 +13,23 @@
 
     @if (isServerMenuOpen) {
       <div class="absolute top-14 left-2 right-2 bg-[#1E1F22] rounded shadow-lg p-2 z-50 border border-[#1e1f22]">
-        <div (click)="leaveServer()" class="group/btn flex items-center justify-between text-[#f23f43] hover:bg-[#f23f43] hover:text-white px-2 py-1.5 rounded cursor-pointer transition-colors">
-          <span class="text-sm font-medium">Abandonar servidor</span>
-          <svg class="w-4 h-4 text-[#f23f43] group-hover/btn:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-        </div>
+        
+        @if (isOwner()) {
+          <div (click)="openDeleteServerModal()" class="group/btn flex items-center justify-between text-[#f23f43] hover:bg-[#f23f43] hover:text-white px-2 py-1.5 rounded cursor-pointer transition-colors">
+            <span class="text-sm font-medium">Eliminar servidor</span>
+            <svg class="w-4 h-4 text-[#f23f43] group-hover/btn:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </div>
+        } @else {
+          <div (click)="leaveServer()" class="group/btn flex items-center justify-between text-[#f23f43] hover:bg-[#f23f43] hover:text-white px-2 py-1.5 rounded cursor-pointer transition-colors">
+            <span class="text-sm font-medium">Abandonar servidor</span>
+            <svg class="w-4 h-4 text-[#f23f43] group-hover/btn:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </div>
+        }
+
       </div>
     }
 
@@ -28,9 +39,12 @@
           <svg class="w-3 h-3 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
           <span class="text-[11px] font-bold uppercase tracking-wide">Canales de Texto</span>
         </div>
-        <svg (click)="openCreateChannelModal()" class="w-4 h-4 text-[#949ba4] hover:text-[#dbdee1] cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
+        
+        @if (isOwner()) {
+          <svg (click)="openCreateChannelModal()" class="w-4 h-4 text-[#949ba4] hover:text-[#dbdee1] cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+        }
       </div>
 
       @for (channel of serverData?.channels; track channel.id) {
@@ -154,4 +168,12 @@
     (close)="isCreateChannelModalOpen = false" 
     (channelCreated)="onChannelCreated($event)">
   </app-create-channel-modal>
+}
+
+@if (isDeleteServerModalOpen && serverData) {
+  <app-delete-server-modal 
+    [serverName]="serverData.name || '' " 
+    (close)="isDeleteServerModalOpen = false" 
+    (confirmDelete)="executeServerDeletion()">
+  </app-delete-server-modal>
 }
