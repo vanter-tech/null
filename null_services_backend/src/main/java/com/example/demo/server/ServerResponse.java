@@ -46,6 +46,8 @@ public class ServerResponse {
      */
     private List<ChannelResponse> channels;
 
+    private Integer ownerId;
+
     /**
      * Lista de miembros que pertenecen a este servidor.
      * Mapeados a DTO para proteger los datos de la entidad User.

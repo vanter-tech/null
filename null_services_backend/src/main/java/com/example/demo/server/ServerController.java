@@ -124,12 +124,24 @@ public class ServerController {
      * @param request Los datos del canal (nombre, tipo).
      * @return El canal recién creado.
      */
+    // 🚀 ACTUALIZADO: Añadimos Authentication
     @PostMapping("/{serverId}/channels")
     public ResponseEntity<ChannelResponse> createChannel(
             @PathVariable Long serverId,
-            @RequestBody @Valid ChannelRequest request
+            @RequestBody @Valid ChannelRequest request,
+            Authentication connectedUser
     ) {
-        return ResponseEntity.ok(serverService.createChannel(serverId, request));
+        return ResponseEntity.ok(serverService.createChannel(serverId, request, connectedUser));
+    }
+
+    // 🚀 NUEVO: Endpoint para borrar el servidor
+    @DeleteMapping("/{serverId}")
+    public ResponseEntity<Void> deleteServer(
+            @PathVariable Long serverId,
+            Authentication connectedUser
+    ){
+        serverService.deleteServer(serverId, connectedUser);
+        return ResponseEntity.noContent().build();
     }
 
 }

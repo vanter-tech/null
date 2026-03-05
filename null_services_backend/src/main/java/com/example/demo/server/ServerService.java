@@ -131,6 +131,7 @@ public class ServerService {
                 .id(server.getId())
                 .name(server.getName())
                 .imageUrl(server.getImageUrl())
+                .ownerId(server.getOwner().getId())
                 .channels(channelResponses)
                 .members(memberResponses)// Agregamos los canales al DTO
                 .build();
@@ -189,15 +190,20 @@ public class ServerService {
 
     /**
      * Crea un nuevo canal dentro de un servidor existente.
-     *
-     * @param serverId ID del servidor padre.
-     * @param request Datos del nuevo canal.
-     * @return El objeto de respuesta del canal recién creado.
+     * 🚀 SOLO EL DUEÑO PUEDE HACER ESTO.
      */
-    public ChannelResponse createChannel(Long serverId, ChannelRequest request) {
+    public ChannelResponse createChannel(Long serverId, ChannelRequest request, Authentication connectedUser) {
+        // Obtenemos al usuario que hace la petición
+        User user = (User) connectedUser.getPrincipal();
+
         // 1. Buscamos el servidor
         Server server = serverRepository.findById(serverId)
                 .orElseThrow(() -> new RuntimeException("Servidor no encontrado"));
+
+        // 🚀 CANDADO DE SEGURIDAD: Validamos que el usuario sea el dueño
+        if (!server.getOwner().getId().equals(user.getId())) {
+            throw new RuntimeException("Solo el dueño puede crear canales en este servidor.");
+        }
 
         // 2. Formateamos el nombre (minúsculas y guiones, estilo Discord)
         String formattedName = request.getName().trim().toLowerCase().replaceAll("\\s+", "-");
@@ -206,22 +212,44 @@ public class ServerService {
         Channel newChannel = Channel.builder()
                 .name(formattedName)
                 .type(request.getType() != null ? request.getType() : "TEXT")
-                .isPrivate(request.getIsPrivate())
+                // 🚀 Protección extra contra nulos por si acaso
+                .isPrivate(request.getIsPrivate() != null ? request.getIsPrivate() : false)
                 .server(server)
                 .build();
 
         // 4. Lo añadimos a la lista del servidor y guardamos
         server.getChannels().add(newChannel);
-        serverRepository.save(server); // Esto guardará el canal por cascada si tienes CascadeType configurado, sino necesitas un ChannelRepository.
+        serverRepository.save(server);
 
-        // IMPORTANTE: Si NO tienes CascadeType.ALL en la relación @OneToMany de Server a Channel,
-        // necesitarás inyectar un ChannelRepository y hacer: channelRepository.save(newChannel);
-
-        // 5. Retornamos la respuesta (puedes crear un helper o hacerlo manual)
+        // 5. Retornamos la respuesta
         return ChannelResponse.builder()
-                .id(newChannel.getId()) // Asegúrate de que tenga ID si no usaste CascadeType
+                .id(newChannel.getId())
                 .name(newChannel.getName())
                 .type(newChannel.getType())
+                .isPrivate(newChannel.getIsPrivate()) // Añadimos esto para que Angular lo sepa
                 .build();
+    }
+
+    /**
+     * Elimina permanentemente un servidor y todos sus canales asociados.
+     * 🚀 SOLO EL DUEÑO PUEDE HACER ESTO.
+     *
+     * @param serverId ID del servidor a eliminar.
+     * @param connectedUser El usuario que hace la petición.
+     */
+    public void deleteServer(Long serverId, Authentication connectedUser) {
+        User user = (User) connectedUser.getPrincipal();
+        Server server = serverRepository.findById(serverId)
+                .orElseThrow(() -> new RuntimeException("Servidor no encontrado"));
+
+        // 🚀 CANDADO DE SEGURIDAD: Validamos que solo el dueño pueda borrarlo
+        if (!server.getOwner().getId().equals(user.getId())) {
+            throw new RuntimeException("Acceso denegado: Solo el propietario puede eliminar este servidor.");
+        }
+
+        // Eliminamos el servidor.
+        // Nota: Si tienes configurado CascadeType.ALL en tu entidad Server (hacia canales),
+        // esto borrará automáticamente todos los canales asociados.
+        serverRepository.delete(server);
     }
 }
