@@ -1,0 +1,54 @@
+<div class="flex-1 w-full h-full flex flex-col bg-[#313338] relative">
+  
+  <div class="absolute top-0 left-0 right-0 p-4 flex items-center justify-between z-10 pointer-events-none">
+    <div class="flex items-center gap-2 text-white font-bold text-lg bg-black/40 px-3 py-1.5 rounded-lg backdrop-blur-sm pointer-events-auto">
+      <svg class="w-5 h-5 text-[#80848e]" fill="currentColor" viewBox="0 0 24 24"><path d="M11.9995 14.9423C13.5645 14.9423 14.8328 13.6739 14.8328 12.109V5.83281C14.8328 4.26788 13.5645 2.99951 11.9995 2.99951C10.4346 2.99951 9.16618 4.26788 9.16618 5.83281V12.109C9.16618 13.6739 10.4346 14.9423 11.9995 14.9423Z"/><path d="M20.0005 12.109C20.0005 16.2737 16.8522 19.7042 12.8338 20.063V23H11.1652V20.063C7.14682 19.7042 3.99854 16.2737 3.99854 12.109H5.6652C5.6652 15.6021 8.50654 18.4423 11.9995 18.4423C15.4925 18.4423 18.3339 15.6021 18.3339 12.109H20.0005Z"/></svg>
+      <span>{{ channelName }}</span>
+    </div>
+  </div>
+
+  <div class="flex-1 overflow-y-auto p-8 flex items-center justify-center">
+    
+    <div class="flex flex-wrap items-center justify-center gap-4 w-full h-full max-w-6xl content-center">
+      
+      @for (p of participants; track p.identity) {
+        
+        <div class="relative flex flex-col items-center justify-center bg-[#1e1f22] rounded-xl overflow-hidden transition-all duration-200"
+             [ngClass]="{
+               'ring-4 ring-[#23a559] shadow-[0_0_15px_rgba(35,165,89,0.3)]': p.isSpeaking,
+               'border-2 border-transparent': !p.isSpeaking
+             }"
+             style="min-width: 280px; min-height: 200px; width: 45%; max-width: 400px; aspect-ratio: 16/9;">
+             
+             <div class="w-24 h-24 rounded-full bg-[#5865f2] flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+               {{ p.identity?.charAt(0) | uppercase }}
+             </div>
+
+             <div class="absolute bottom-3 left-3 bg-black/70 px-2.5 py-1.5 rounded-md flex items-center gap-2 backdrop-blur-sm">
+               
+               @if (p.isSpeaking) {
+                 <div class="w-2.5 h-2.5 rounded-full bg-[#23a559] shadow-[0_0_8px_#23a559] animate-pulse"></div>
+               }
+
+               <span class="text-white text-sm font-semibold tracking-wide">
+                 {{ p.isLocal ? 'Tú (' + p.identity + ')' : p.identity }}
+               </span>
+             </div>
+        </div>
+
+      }
+
+      @if (participants.length === 0) {
+        <div class="text-center text-[#949ba4] mt-10">
+          <svg class="w-16 h-16 mx-auto mb-4 text-[#4e5058]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <h3 class="text-xl font-bold text-white mb-1">El canal está vacío</h3>
+          <p>Esperando a que otros usuarios se unan a la charla.</p>
+        </div>
+      }
+
+    </div>
+  </div>
+
+</div>

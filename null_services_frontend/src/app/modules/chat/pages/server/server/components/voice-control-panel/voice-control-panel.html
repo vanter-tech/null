@@ -1,0 +1,23 @@
+<div class="px-2 py-2 flex items-center justify-between bg-[#111214] rounded-md mx-2 mb-2 mt-1 border border-[#1e1f22] shadow-md">
+  
+  <div class="flex flex-col min-w-0">
+    <div class="flex items-center gap-1.5">
+      <svg class="w-4 h-4 text-[#23a559]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+      <span class="text-[#23a559] text-[13px] font-bold truncate">Voz conectada</span>
+    </div>
+    <span class="text-[#949ba4] text-[11px] font-medium truncate hover:underline cursor-pointer pl-5">
+      {{ channelName }}
+    </span>
+  </div>
+  
+  <div class="flex items-center">
+    <button (click)="onDisconnect.emit()" title="Desconectar" class="w-8 h-8 rounded-md hover:bg-[#35373c] flex items-center justify-center group transition-colors">
+       <svg class="w-5 h-5 text-[#dbdee1] group-hover:text-[#f23f43] transition-colors" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M16.48 4.02a1.5 1.5 0 0 1 2.12 0l1.38 1.38a1.5 1.5 0 0 1 0 2.12l-3.53 3.54a1.5 1.5 0 0 1-2.12 0l-1.42-1.42a1 1 0 0 0-1.41 0 5.48 5.48 0 0 1-7.75 0 1 1 0 0 0-1.42 0L.81 11.06a1.5 1.5 0 0 1-2.12 0L-2.69 9.68a1.5 1.5 0 0 1 0-2.12l3.54-3.54a1.5 1.5 0 0 1 2.12 0l1.41 1.42a1 1 0 0 0 1.42 0 5.48 5.48 0 0 1 7.75 0 1 1 0 0 0 1.41 0l1.42-1.42Z" transform="translate(4, 5)"/>
+       </svg>
+    </button>
+  </div>
+
+</div>

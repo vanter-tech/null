@@ -1,8 +1,8 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { FriendsControllerService } from '../../../../../../services/api/api/friendsController.service';
-import { FriendRequestDTO } from '../../../../../../services/api';
+import { FriendsControllerService } from '../../../../../../../services/api/api/friendsController.service';
+import { FriendRequestDTO } from '../../../../../../../services/api';
 
 @Component({
   selector: 'app-friends-pending',

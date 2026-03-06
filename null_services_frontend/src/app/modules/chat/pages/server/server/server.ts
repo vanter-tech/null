@@ -14,6 +14,8 @@ import { DeleteServerModal } from '../../../components/modals/delete-server-moda
 
 import { Track, RoomEvent, Room } from 'livekit-client'
 import { VoiceControllerService } from '../../../../../services/api/api/voiceController.service';
+import { VoiceControlPanel } from './components/voice-control-panel/voice-control-panel';
+import { VoiceRoom } from './components/voice-room/voice-room';
 
 /**
  * Componente principal para la gestión de servidores.
@@ -22,7 +24,15 @@ import { VoiceControllerService } from '../../../../../services/api/api/voiceCon
 @Component({
   selector: 'app-server',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, CreateChannelModal, DeleteServerModal],
+  imports: [CommonModule, 
+    RouterModule, 
+    FormsModule, 
+    CreateChannelModal, 
+    DeleteServerModal,
+    VoiceControlPanel,
+    VoiceRoom
+  
+  ],
   templateUrl: './server.html',
   styleUrl: './server.css',
 })
@@ -52,6 +62,9 @@ export class Server implements OnInit, OnDestroy {
   private routeSub?: Subscription;
 
   currentVoiceRoom: Room | null = null;
+
+  // 👥 Lista de personas conectadas al audio
+  voiceParticipants: any[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -123,6 +136,13 @@ export class Server implements OnInit, OnDestroy {
     }
   }
 
+  // 🚀 Helper para saber si dibujamos el chat o la sala de voz
+  getActiveChannelType(): string {
+    if (!this.serverData?.channels || !this.activeChannelId) return 'TEXT';
+    const channel = this.serverData.channels.find(c => c.id === this.activeChannelId);
+    return channel?.type || 'TEXT';
+  }
+
 
   joinVoiceChannel(channelId: number): void {
     this.leaveVoiceChannel(); // Limpieza previa
@@ -143,6 +163,11 @@ export class Server implements OnInit, OnDestroy {
   async connectToLiveKit(token: string) {
     this.currentVoiceRoom = new Room();
 
+    // 🚀 AÑADIDO: Escuchar quién entra, quién sale y quién está hablando
+    this.currentVoiceRoom.on(RoomEvent.ParticipantConnected, () => this.updateParticipants());
+    this.currentVoiceRoom.on(RoomEvent.ParticipantDisconnected, () => this.updateParticipants());
+    this.currentVoiceRoom.on(RoomEvent.ActiveSpeakersChanged, () => this.updateParticipants());
+
     // 🎧 Escuchar cuando alguien habla
     this.currentVoiceRoom.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
       if (track.kind === Track.Kind.Audio) {
@@ -162,13 +187,15 @@ export class Server implements OnInit, OnDestroy {
       await this.currentVoiceRoom.connect(livekitUrl, token);
       console.log('✅ Conectados exitosamente al servidor LiveKit');
 
+      // 🚀 AÑADIDO: Actualizamos la lista por primera vez al entrar
+      this.updateParticipants();
+
       // 🎙️ Encender nuestro micrófono
       await this.currentVoiceRoom.localParticipant.setMicrophoneEnabled(true, {
         echoCancellation: true,
         noiseSuppression: true,
         autoGainControl: true,
-        // 🎙️ Esto obliga al navegador a usar sus mejores algoritmos
-        channelCount: 1, // Mono suele ser mejor para voz pura
+        channelCount: 1, 
       });
       
       console.log('🎙️ Micrófono activado y transmitiendo al canal');
@@ -186,6 +213,27 @@ export class Server implements OnInit, OnDestroy {
       console.log('🔇 Desconectado del canal de voz');
     }
   }
+
+  // 🚀 Actualiza la lista visual de avatares cada vez que alguien entra, sale o habla
+  updateParticipants() {
+    if (!this.currentVoiceRoom) return;
+    
+    // Combinamos tu usuario local con los usuarios remotos
+    const participants = [
+      this.currentVoiceRoom.localParticipant,
+      ...Array.from(this.currentVoiceRoom.remoteParticipants.values())
+    ];
+    
+    // Mapeamos los datos para que el componente voice-room los entienda fácil
+    this.voiceParticipants = participants.map(p => ({
+      identity: p.identity,
+      isSpeaking: p.isSpeaking,
+      isLocal: p === this.currentVoiceRoom?.localParticipant
+    }));
+    
+    this.cdr.detectChanges();
+  }
+
 
   private loadChannelHistory(channelId: number): void {
     this.messageService.getChannelHistory(channelId as any).subscribe({

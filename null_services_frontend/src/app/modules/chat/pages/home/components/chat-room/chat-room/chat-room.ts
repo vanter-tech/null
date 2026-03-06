@@ -4,13 +4,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 
-import { Token } from '../../../../../../services/api/token/token';
+import { Token } from '../../../../../../../services/api/token/token';
 
 import { Subscription } from 'rxjs';
 
-import { MessageControllerService } from '../../../../../../services/api';
-import { Message } from '../../../../../../services/api';;
-import { Websocket } from '../../../../../../services/api/websocket/websocket';
+import { MessageControllerService } from '../../../../../../../services/api';
+import { Message } from '../../../../../../../services/api';;
+import { Websocket } from '../../../../../../../services/api/websocket/websocket';
 
 
 

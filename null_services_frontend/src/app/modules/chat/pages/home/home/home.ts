@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DmSidebar } from "../../../components/dm-sidebar/dm-sidebar";
-import { FriendsOnline } from '../friends-online/friends-online/friends-online';
-import { FriendsAll } from '../friends-all/friends-all/friends-all';
-import { FriendsPending } from '../friends-pending/friends-pending/friends-pending';
-import { FriendAdd } from '../friends-add/friend-add/friend-add';
-import { ChatRoom } from '../chat-room/chat-room/chat-room';
+import { FriendsOnline } from '../components/friends-online/friends-online';
+import { FriendsAll } from '../components/friends-all/friends-all/friends-all';
+import { FriendsPending } from '../components/friends-pending/friends-pending/friends-pending';
+import { FriendAdd } from '../components/friends-add/friend-add/friend-add';
+import { ChatRoom } from '../components/chat-room/chat-room/chat-room';
 
 type tabType = 'ONLINE' | 'ALL' | 'PENDING' | 'ADD';
 type ViewType = 'FRIENDS' | 'CHAT';

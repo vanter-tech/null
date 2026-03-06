@@ -1,10 +1,10 @@
 import { Component, OnInit, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ConversationControllerService } from '../../../../../../services/api';
+import { ConversationControllerService } from '../../../../../../../services/api';
 
-import { FriendsControllerService } from '../../../../../../services/api/api/friendsController.service';
-import { FriendResponseDTO } from '../../../../../../services/api/model/friendResponseDTO';
+import { FriendsControllerService } from '../../../../../../../services/api/api/friendsController.service';
+import { FriendResponseDTO } from '../../../../../../../services/api/model/friendResponseDTO';
 
 @Component({
   selector: 'app-friends-all',
