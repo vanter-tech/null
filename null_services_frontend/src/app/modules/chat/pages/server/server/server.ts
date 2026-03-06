@@ -12,6 +12,9 @@ import { Token } from '../../../../../services/api/token/token';
 import { CreateChannelModal } from '../../../components/modals/create-channel-modal/create-channel-modal/create-channel-modal';
 import { DeleteServerModal } from '../../../components/modals/delete-server-modal/delete-server-modal/delete-server-modal';
 
+import { Track, RoomEvent, Room } from 'livekit-client'
+import { VoiceControllerService } from '../../../../../services/api/api/voiceController.service';
+
 /**
  * Componente principal para la gestión de servidores.
  * Controla la visualización de canales, lista de miembros y la lógica de chat en tiempo real.
@@ -48,6 +51,8 @@ export class Server implements OnInit, OnDestroy {
   private topicSubscription?: Subscription;
   private routeSub?: Subscription;
 
+  currentVoiceRoom: Room | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -56,7 +61,8 @@ export class Server implements OnInit, OnDestroy {
     private authService: AuthService,
     private ws: Websocket,
     private cdr: ChangeDetectorRef,
-    private tokenService: Token
+    private tokenService: Token,
+    private voiceService: VoiceControllerService
   ) {
     this.myUserId = this.authService.getMyUserId()
   }
@@ -95,12 +101,90 @@ export class Server implements OnInit, OnDestroy {
     });
   }
 
+
   selectChannel(channelId: number | undefined): void {
-    if (channelId === undefined) return;
+    if (channelId === undefined || !this.serverData?.channels) return;
     
+    // Buscamos el canal completo para saber su tipo
+    const channel = this.serverData.channels.find(c => c.id === channelId);
+    if (!channel) return;
+
     this.activeChannelId = channelId;
-    this.loadChannelHistory(channelId);
-    this.connectToChannelTopic(channelId);
+
+    if (channel.type === 'VOICE') {
+      // 🎙️ ES UN CANAL DE VOZ
+      console.log('🎙️ Entrando a canal de voz:', channel.name);
+      this.joinVoiceChannel(channelId);
+    } else {
+      // 💬 ES UN CANAL DE TEXTO
+      this.leaveVoiceChannel(); // Apagamos el micro si veníamos de un canal de voz
+      this.loadChannelHistory(channelId);
+      this.connectToChannelTopic(channelId);
+    }
+  }
+
+
+  joinVoiceChannel(channelId: number): void {
+    this.leaveVoiceChannel(); // Limpieza previa
+
+    console.log(`🎟️ Solicitando boleto VIP para el canal de voz ${channelId}...`);
+
+    this.voiceService.getVoiceToken(channelId.toString()).subscribe({
+      next: async (response: any) => {
+        const token = response.token || response['token']; 
+        if (token) {
+          await this.connectToLiveKit(token);
+        }
+      },
+      error: (err) => console.error('❌ Error al obtener el token de voz', err)
+    });
+  }
+
+  async connectToLiveKit(token: string) {
+    this.currentVoiceRoom = new Room();
+
+    // 🎧 Escuchar cuando alguien habla
+    this.currentVoiceRoom.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+      if (track.kind === Track.Kind.Audio) {
+        console.log(`🔊 Recibiendo audio de: ${participant.identity}`);
+        const audioElement = track.attach();
+        document.body.appendChild(audioElement);
+      }
+    });
+
+    this.currentVoiceRoom.on(RoomEvent.TrackUnsubscribed, (track) => {
+      track.detach(); 
+    });
+
+    try {
+      // 🌐 Conectar al Docker
+      const livekitUrl = 'ws://127.0.0.1:7880';
+      await this.currentVoiceRoom.connect(livekitUrl, token);
+      console.log('✅ Conectados exitosamente al servidor LiveKit');
+
+      // 🎙️ Encender nuestro micrófono
+      await this.currentVoiceRoom.localParticipant.setMicrophoneEnabled(true, {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        // 🎙️ Esto obliga al navegador a usar sus mejores algoritmos
+        channelCount: 1, // Mono suele ser mejor para voz pura
+      });
+      
+      console.log('🎙️ Micrófono activado y transmitiendo al canal');
+
+    } catch (error) {
+      console.error('❌ Error fatal al conectar con LiveKit:', error);
+      alert('No se pudo conectar al servidor de voz. Verifica que Docker esté corriendo.');
+    }
+  }
+
+  leaveVoiceChannel() {
+    if (this.currentVoiceRoom) {
+      this.currentVoiceRoom.disconnect();
+      this.currentVoiceRoom = null;
+      console.log('🔇 Desconectado del canal de voz');
+    }
   }
 
   private loadChannelHistory(channelId: number): void {
@@ -249,5 +333,6 @@ export class Server implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.topicSubscription?.unsubscribe();
     this.routeSub?.unsubscribe();
+    this.leaveVoiceChannel();
   }
 }

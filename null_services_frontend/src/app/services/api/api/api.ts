@@ -10,4 +10,6 @@ export * from './serverController.service';
 import { ServerControllerService } from './serverController.service';
 export * from './users.service';
 import { UsersService } from './users.service';
-export const APIS = [AuthenticationService, ConversationControllerService, FriendsControllerService, MessageControllerService, ServerControllerService, UsersService];
+export * from './voiceController.service';
+import { VoiceControllerService } from './voiceController.service';
+export const APIS = [AuthenticationService, ConversationControllerService, FriendsControllerService, MessageControllerService, ServerControllerService, UsersService, VoiceControllerService];

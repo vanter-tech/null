@@ -75,15 +75,13 @@ services:
   livekit:
     image: livekit/livekit-server:latest
     container_name: livekit-server
-    command: --dev
-    environment:
-      # 🚀 El Fix: Inyectamos la limitación de puertos directamente a su configuración interna
-      - LIVEKIT_CONFIG={"rtc":{"port_range_start":50000,"port_range_end":50050}}
+    # 🚀 Agregamos --node-ip para que el servidor sepa exactamente quién es
+    command: --dev --bind 0.0.0.0 --node-ip 127.0.0.1
     ports:
       - "7880:7880"
       - "7881:7881"
       - "7882:7882/udp"
-      - "50000-50050:50000-50050/udp" # Rango seguro para que Docker Desktop no explote
+      - "50000-50050:50000-50050/udp"
     restart: unless-stopped
     networks:
       - null-network-project
