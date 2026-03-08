@@ -211,6 +211,7 @@ export class Server implements OnInit, OnDestroy {
       this.currentVoiceRoom.disconnect();
       this.currentVoiceRoom = null;
       console.log('🔇 Desconectado del canal de voz');
+      this.cdr.detectChanges();
     }
   }
 

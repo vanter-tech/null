@@ -11,6 +11,7 @@ export class VoiceControlPanel {
 
   @Input() channelName: string = '';
   @Input() serverName: string = '';
+  showSmallPanel: boolean = false;
   // 📞 Un evento para avisarle al padre (server.ts) que queremos colgar
   @Output() onDisconnect = new EventEmitter<void>();
 
