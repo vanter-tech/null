@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -32,7 +32,8 @@ export class CreateDmModalComponent implements OnInit, OnDestroy {
     private modalService: Modalservice,
     private conversationControllerService: ConversationControllerService, // 🚀 AHORA SÍ ES TU SERVICIO REAL
     private router: Router,
-    private chatNavigationService: ChatNavigationService
+    private chatNavigationService: ChatNavigationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -98,6 +99,7 @@ export class CreateDmModalComponent implements OnInit, OnDestroy {
         if (isDuplicate) {
           // 🚀 MOSTRAMOS LA ADVERTENCIA EN EL HTML EN LUGAR DEL CONFIRM
           this.showDuplicateWarning = true; 
+          this.cdr.detectChanges();
         } else {
           this.executeCreation(recipientIds);
         }

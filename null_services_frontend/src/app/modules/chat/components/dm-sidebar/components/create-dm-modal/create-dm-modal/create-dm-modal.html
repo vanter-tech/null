@@ -67,7 +67,16 @@
           No se encontraron amigos que coincidan con la búsqueda.
         </div>
       }
-    </div>
+    </div> @if (showDuplicateWarning) {
+      <div class="mx-4 mb-4 p-3 rounded-[4px] bg-[#f0b232]/10 border border-[#f0b232] flex items-start gap-3 transition-all">
+        <svg class="w-5 h-5 text-[#f0b232] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path>
+        </svg>
+        <div class="text-[13px] text-[#dbdee1] leading-tight">
+          <strong class="text-[#f0b232] font-semibold">Advertencia:</strong> Ya tienes un grupo con estas mismas personas. ¿Seguro que quieres crear otro idéntico? Haz clic en <span class="font-bold text-white">Crear MD</span> nuevamente para confirmar.
+        </div>
+      </div>
+    }
 
     <div class="bg-[#2b2d31] p-4 flex justify-end gap-4">
       <button class="px-5 py-2.5 text-sm font-medium text-white bg-transparent border-none cursor-pointer hover:underline outline-none" 
