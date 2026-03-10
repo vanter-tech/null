@@ -91,31 +91,38 @@ export class DmSidebar implements OnInit, OnDestroy {
   }
 
   /**
-   * Se ejecuta al hacer clic EXACTAMENTE en la "X" que aparece al hacer hover
+   * Se ejecuta al hacer clic en el botón de cerrar ("X") que aparece al hacer hover
+   * sobre una conversación en la barra lateral.
    */
   removeConversation(event: Event, conv: ConversationResponse) {
-    // 1. ESCUDO: Evita que el clic "traspase" la X y active el selectConversation() del fondo
+    // 1. Evita que el evento de clic se propague al contenedor padre y abra el chat
     event.stopPropagation(); 
 
-    console.log('Solicitud para quitar chat de la barra:', conv);
+    if (!conv.id) return;
 
-    // 2. UX MÁGICA: Lo borramos de la vista instantáneamente
-    // Filtramos la lista para quedarnos con todos MENOS el que acabamos de clickear
+    console.log('Ocultando chat de la barra:', conv);
+
+    // 2. UX Optimista: Guardamos un respaldo temporal y eliminamos el chat de la vista inmediatamente
+    const backupConversations = [...this.conversations];
     this.conversations = this.conversations.filter(c => c.id !== conv.id);
+    this.cdr.detectChanges(); // Forzamos el redibujado inmediato en Angular
 
-    // 3. LÓGICA DE NEGOCIO (El puente hacia tu Backend)
-    // Discord maneja diferente borrar un 1v1 que abandonar un Grupo.
-    const isGroup = conv.otherUserName?.includes(',');
-
-    if (isGroup) {
-      console.log('Es un grupo: Se debería llamar a la API para ABANDONAR o ELIMINAR el grupo.');
-      // AQUÍ IRÁ TU LLAMADA AL BACKEND:
-      // this.conversationService.leaveGroup(conv.id).subscribe(...)
-    } else {
-      console.log('Es 1v1: Se debería llamar a la API para OCULTAR este chat de tu vista.');
-      // AQUÍ IRÁ TU LLAMADA AL BACKEND:
-      // this.conversationService.hideConversation(conv.id).subscribe(...)
-    }
+    // 3. Lógica de negocio: Llamada al servidor para persistir el estado oculto
+    this.conversationService.hideConversation(conv.id).subscribe({
+      next: () => {
+        console.log('Chat ocultado con éxito en la base de datos.');
+        
+        // Opcional: Si el chat que se acaba de cerrar es el que está activo 
+        // actualmente en la pantalla central, se podría emitir un evento 
+        // para regresar a la vista de "Amigos".
+      },
+      error: (err) => {
+        console.error('Error al ocultar el chat en el servidor', err);
+        // Si la petición falla, restauramos la lista visual al estado anterior
+        this.conversations = backupConversations;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   /**

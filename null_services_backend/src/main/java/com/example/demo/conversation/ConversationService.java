@@ -5,6 +5,7 @@ import com.example.demo.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -101,6 +102,7 @@ public class ConversationService {
      * Oculta un chat (1v1 o grupal) de la vista del usuario actual,
      * añadiéndolo a la "lista negra" visual (hiddenBy).
      */
+    @Transactional
     public void hideConversation(Long conversationId, Authentication connectedUser) {
         // 1. Obtenemos tu usuario desde el token de seguridad
         User currentUser = (User) connectedUser.getPrincipal();
@@ -124,7 +126,7 @@ public class ConversationService {
     /**
      * LÓGICA: OBTENER TODAS LAS CONVERSACIONES
      * Se usa cuando entras a tu app y carga tu panel izquierdo.
-     * Ahora filtra los chats que el usuario ha decidido ocultar.
+     * Ahora filtra los chats que el usuario ha decidido ocultar, comparando por ID de usuario.
      */
     public List<ConversationResponse> getUserConversation(Authentication connectedUser) {
         User user = (User) connectedUser.getPrincipal();
@@ -134,8 +136,9 @@ public class ConversationService {
 
         // 2. Transformamos cada entidad Conversation en un ConversationResponse (DTO)
         return conversations.stream()
-                // 🚀 FILTRO MÁGICO: Si la lista 'hiddenBy' te contiene, ignoramos este chat
-                .filter(conv -> conv.getHiddenBy() == null || !conv.getHiddenBy().contains(user))
+                // FILTRO CORREGIDO: Verificamos si ningún usuario en la lista de ocultos tiene tu mismo ID
+                .filter(conv -> conv.getHiddenBy() == null ||
+                        conv.getHiddenBy().stream().noneMatch(hiddenUser -> hiddenUser.getId().equals(user.getId())))
                 // 3. Mapeamos las conversaciones que sí pasaron el filtro
                 .map(conversation -> mapToResponse(conversation, user))
                 .toList();
