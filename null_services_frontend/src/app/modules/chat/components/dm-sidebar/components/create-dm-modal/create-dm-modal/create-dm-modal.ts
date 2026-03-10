@@ -73,41 +73,88 @@ export class CreateDmModalComponent implements OnInit, OnDestroy {
   createDirectMessage(): void {
     if (this.selectedFriendIds.size === 0) return;
 
-    // Convertimos el Set a un Array de IDs
     const recipientIds = Array.from(this.selectedFriendIds);
 
     // ==========================================
     // 👤 CASO 1: CHAT 1 VS 1
     // ==========================================
     if (recipientIds.length === 1) {
-      const friendId = recipientIds[0];
-      const friendData = this.friendsList.find(f => f.id === friendId);
-      
-      console.log('Creando DM 1v1 con el ID:', friendId);
+      this.executeCreation(recipientIds);
+      return;
+    }
 
-      this.conversationControllerService.createConversation(friendId as any).subscribe({
+    // ==========================================
+    // 👥 CASO 2: CHAT GRUPAL (Validación)
+    // ==========================================
+    console.log('Validando si el grupo ya existe...');
+    
+    // Obtenemos las conversaciones actuales para comparar
+    this.conversationControllerService.getConversation().subscribe({
+      next: (conversations) => {
+        
+        const isDuplicate = this.checkIfGroupExists(recipientIds, conversations);
+        
+        if (isDuplicate) {
+          const confirmNew = confirm("Ya tienes un grupo con estas mismas personas. ¿Quieres crear uno nuevo de todas formas?");
+          if (!confirmNew) return; // Si el usuario cancela, detenemos todo
+        }
+
+        // Si no es duplicado o el usuario aceptó crear otro, procedemos
+        this.executeCreation(recipientIds);
+      },
+      error: (err) => {
+        console.error("Error validando grupos, intentando crear de todos modos...", err);
+        this.executeCreation(recipientIds);
+      }
+    });
+  }
+
+  /**
+   * 🧠 Función que compara los nombres seleccionados con los chats existentes
+   */
+  private checkIfGroupExists(newIds: number[], conversations: any[]): boolean {
+    // 1. Obtenemos los nombres de los amigos que seleccionaste y los ordenamos alfabéticamente
+    const selectedNames = newIds.map(id => {
+      const friend = this.friendsList.find(f => f.id === id);
+      return friend ? friend.name : '';
+    }).filter(name => name !== '').sort();
+
+    // 2. Buscamos en las conversaciones que vinieron del backend
+    for (const conv of conversations) {
+      if (conv.otherUserName) {
+        // El backend devuelve ej: "Test2, Test3". Lo separamos en un array y lo ordenamos
+        const convNames = conv.otherUserName.split(',').map((n: string) => n.trim()).sort();
+
+        // 3. Comparamos si ambos arrays son exactamente iguales
+        if (JSON.stringify(selectedNames) === JSON.stringify(convNames)) {
+          return true; // ¡Alerta! Ya existe este grupo
+        }
+      }
+    }
+    
+    return false; // Vía libre, no existe
+  }
+
+  /**
+   * 🚀 Función que realmente llama a tu API para crear el chat
+   */
+  private executeCreation(ids: number[]) {
+    if (ids.length === 1) {
+      // API para 1 vs 1
+      this.conversationControllerService.createConversation(ids[0] as any).subscribe({
         next: (response: any) => {
           this.closeModal();
-          const name = friendData?.name || response.otherUserName || 'Usuario';
+          const name = this.friendsList.find(f => f.id === ids[0])?.name || response.otherUserName || 'Usuario';
           this.chatNavigationService.openChat(response.id, name);
         },
         error: (err) => console.error('Error al crear DM 1v1', err)
       });
-    } 
-    // ==========================================
-    // 👥 CASO 2: CHAT GRUPAL
-    // ==========================================
-    else {
-      console.log('Creando DM Grupal con los IDs:', recipientIds);
-
-      // 🚀 Usamos tu NUEVO método generado por OpenAPI
-      this.conversationControllerService.createGroupConversation(recipientIds).subscribe({
+    } else {
+      // API para Grupos
+      this.conversationControllerService.createGroupConversation(ids).subscribe({
         next: (response: any) => {
           this.closeModal();
-          
-          // El backend ya nos devuelve el nombre unido (ej: "Juan, María") en response.otherUserName
           const groupName = response.otherUserName || 'Grupo Nuevo';
-          
           this.chatNavigationService.openChat(response.id, groupName);
         },
         error: (err) => console.error('Error al crear DM Grupal', err)
