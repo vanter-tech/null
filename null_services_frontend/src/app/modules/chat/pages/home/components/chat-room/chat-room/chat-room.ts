@@ -158,22 +158,22 @@ export class ChatRoom implements OnChanges, OnDestroy {
   }
 
 
-  getSenderName(sendId?: number | string): string {
-
-    if (!sendId) {
-      // Si entra aquí, es culpa del backend (no envía el ID del remitente)
-      return 'Unknown (Falta ID)'; 
-    }
-
-    const id = Number(sendId);
-
-    if (id === this.myUserId) {
-      return 'Tú'; 
-    }
-    
-    // Si entra aquí, es culpa de que friendName no esté llegando
-    return this.friendName || 'Unknown (Falta Nombre)';
+  getSenderName(msg: Message): string {
+  // 1. Si el ID del remitente es el mío, ponemos "Tú"
+  if (msg.sendId === this.myUserId) {
+    return 'Tú';
   }
+
+  // 2. 🚀 LA SOLUCIÓN: Usamos el nickname que inyectaste en el MessageService de Java
+  if (msg.senderNickname) {
+    return msg.senderNickname;
+  }
+
+  // 3. FALLBACK: Si por alguna razón el nickname viene vacío, 
+  // intentamos usar el friendName (que en grupos es la lista de nombres)
+  // o un genérico si todo falla.
+  return this.friendName || 'Usuario';
+}
 
   scrollToBottom(): void {
     try {
