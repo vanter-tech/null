@@ -97,17 +97,46 @@ public class ConversationService {
     }
 
     /**
+     * LÓGICA: OCULTAR CONVERSACIÓN
+     * Oculta un chat (1v1 o grupal) de la vista del usuario actual,
+     * añadiéndolo a la "lista negra" visual (hiddenBy).
+     */
+    public void hideConversation(Long conversationId, Authentication connectedUser) {
+        // 1. Obtenemos tu usuario desde el token de seguridad
+        User currentUser = (User) connectedUser.getPrincipal();
+
+        // 2. Buscamos el chat en la base de datos
+        Conversation conv = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new RuntimeException("Conversación no encontrada"));
+
+        // 3. Inicializamos el conjunto por si es nulo (prevención de NullPointerException)
+        if (conv.getHiddenBy() == null) {
+            conv.setHiddenBy(new HashSet<>());
+        }
+
+        // 4. Te agregamos a la lista de personas que han ocultado este chat
+        conv.getHiddenBy().add(currentUser);
+
+        // 5. Guardamos los cambios en la BD
+        conversationRepository.save(conv);
+    }
+
+    /**
      * LÓGICA: OBTENER TODAS LAS CONVERSACIONES
      * Se usa cuando entras a tu app y carga tu panel izquierdo.
+     * Ahora filtra los chats que el usuario ha decidido ocultar.
      */
     public List<ConversationResponse> getUserConversation(Authentication connectedUser) {
         User user = (User) connectedUser.getPrincipal();
 
-        // Buscamos todas las conversaciones donde tu ID esté en la tabla de participantes
+        // 1. Buscamos todas las conversaciones donde tu ID esté en la tabla de participantes
         List<Conversation> conversations = conversationRepository.findAllByUserId(user.getId());
 
-        // Transformamos cada entidad Conversation en un ConversationResponse (DTO)
+        // 2. Transformamos cada entidad Conversation en un ConversationResponse (DTO)
         return conversations.stream()
+                // 🚀 FILTRO MÁGICO: Si la lista 'hiddenBy' te contiene, ignoramos este chat
+                .filter(conv -> conv.getHiddenBy() == null || !conv.getHiddenBy().contains(user))
+                // 3. Mapeamos las conversaciones que sí pasaron el filtro
                 .map(conversation -> mapToResponse(conversation, user))
                 .toList();
     }

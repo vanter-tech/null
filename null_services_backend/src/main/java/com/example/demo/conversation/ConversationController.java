@@ -61,4 +61,26 @@ public class ConversationController {
     ){
         return ResponseEntity.ok(conversationService.getUserConversation(connectedUser));
     }
+
+    /**
+     * Endpoint para ocultar visualmente una conversación.
+     * <p>
+     * Recibe la petición para marcar una conversación como oculta para el usuario actual.
+     * NOTA DE ARQUITECTURA: Se utiliza el verbo HTTP PATCH en lugar de DELETE, ya que
+     * el recurso (la conversación) no se elimina del servidor, sino que únicamente se
+     * actualiza parcialmente su estado de visibilidad mediante la relación 'hiddenBy'.
+     * </p>
+     *
+     * @param conversationId El ID de la conversación que se desea ocultar, obtenido de la URL.
+     * @param connectedUser  Los datos de autenticación del usuario actual provistos por Spring Security.
+     * @return ResponseEntity con código 200 (OK) sin contenido en el cuerpo.
+     */
+    @PatchMapping("/{conversationId}/hide")
+    public ResponseEntity<Void> hideConversation(
+            @PathVariable Long conversationId,
+            Authentication connectedUser
+    ){
+        conversationService.hideConversation(conversationId, connectedUser);
+        return ResponseEntity.ok().build();
+    }
 }
