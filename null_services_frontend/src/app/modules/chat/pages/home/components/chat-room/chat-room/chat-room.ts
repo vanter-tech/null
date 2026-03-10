@@ -164,7 +164,7 @@ export class ChatRoom implements OnChanges, OnDestroy {
     return 'Tú';
   }
 
-  // 2. 🚀 LA SOLUCIÓN: Usamos el nickname que inyectaste en el MessageService de Java
+  // 2.  LA SOLUCIÓN: Usamos el nickname que inyectaste en el MessageService de Java
   if (msg.senderNickname) {
     return msg.senderNickname;
   }
