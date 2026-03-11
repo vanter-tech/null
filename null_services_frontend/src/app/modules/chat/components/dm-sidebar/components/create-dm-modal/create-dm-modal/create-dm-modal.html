@@ -40,11 +40,16 @@
                      'bg-[#747f8d]': friend.status === 'OFFLINE' || !friend.status
                    }">
               </div>
+              
             </div>
             
-            <div class="flex flex-col">
-              <span class="text-[#f2f3f5] text-[16px] font-medium">{{ friend.name }}</span>
-              <span class="text-[#949ba4] text-[13px] capitalize">{{ friend.status?.toLowerCase() || 'Offline' }}</span>
+            <div class="flex flex-col overflow-hidden leading-tight">
+              <span class="text-white text-[15px] font-bold truncate">{{ friend.name }}</span>
+              <span class="text-[#b5bac1] text-xs truncate italic">
+                {{ friend.status === 'ONLINE' ? 'En línea' : 
+                   friend.status === 'AWAY' ? 'Ausente' : 
+                   friend.status === 'DO_NOT_DISTURB' ? 'No molestar' : 'Desconectado' }}
+              </span>
             </div>
           </div>
 
