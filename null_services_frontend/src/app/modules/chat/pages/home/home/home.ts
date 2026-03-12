@@ -9,6 +9,7 @@ import { FriendsPending } from '../components/friends-pending/friends-pending/fr
 import { FriendAdd } from '../components/friends-add/friend-add/friend-add';
 import { ChatRoom } from '../components/chat-room/chat-room/chat-room';
 
+import { Modalservice } from '../../../../../services/api/modalservice/modalservice';
 // 🚀 IMPORTAMOS EL WALKIE-TALKIE
 import { ChatNavigationService } from '../../../../../services/api/chat-navigation-service/chat-navigation-service';
 
@@ -25,7 +26,7 @@ type ViewType = 'FRIENDS' | 'CHAT';
     FriendsAll, 
     FriendsPending,
     FriendAdd,
-    ChatRoom
+    ChatRoom,
   ],
   templateUrl: './home.html',
   styleUrl: './home.css',
@@ -42,6 +43,7 @@ export class Home implements OnInit, OnDestroy {
 
   constructor(
     private chatNavigationService: ChatNavigationService,
+    private modalService: Modalservice,
     private cdr: ChangeDetectorRef // 🚀 INYECTAMOS EL DETECTOR DE CAMBIOS
   ) {}
 
@@ -79,6 +81,10 @@ export class Home implements OnInit, OnDestroy {
 
   setTab(tab: tabType) {
     this.activeTab = tab;
+  }
+
+  openCreateDMModal(): void{
+    this.modalService.openCreateDm();
   }
 
   openFriendsList() {
