@@ -12,11 +12,24 @@
         <div class="flex items-center space-x-3">
           <div class="w-8 h-8 rounded-full bg-indigo-500 relative flex items-center justify-center text-white font-bold text-sm">
             {{ friend.name?.charAt(0)?.toUpperCase() || '?' }}
-            <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-[2.5px] border-[#313338] group-hover:border-[#3f4147] transition-colors"></div>
+            <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 border-[3px] border-[#313338] group-hover:border-[#3f4147] rounded-full transition-colors"
+                   [ngClass]="{
+                     'bg-[#23a559]': friend.status === 'ONLINE',
+                     'bg-[#f0b232]': friend.status === 'AWAY',
+                     'bg-[#f23f43]': friend.status === 'DO_NOT_DISTURB',
+                     'bg-[#80848e]': friend.status === 'OFFLINE' || !friend.status
+                   }">
+            </div>
           </div>
+          
           <div class="flex flex-col leading-tight">
             <span class="text-[#f2f3f5] font-semibold text-[15px]">{{ friend.name }}</span>
-            <span class="text-[#b5bac1] text-[13px]">Conectado</span>
+            
+            <span class="text-[#b5bac1] text-[13px]">
+               {{ friend.status === 'ONLINE' ? 'En línea' : 
+                  friend.status === 'AWAY' ? 'Ausente' : 
+                  friend.status === 'DO_NOT_DISTURB' ? 'No molestar' : 'Desconectado' }}
+            </span>
           </div>
         </div>
 
