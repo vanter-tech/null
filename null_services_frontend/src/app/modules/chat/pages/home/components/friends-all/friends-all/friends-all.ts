@@ -2,11 +2,14 @@ import { Component, OnInit, ChangeDetectorRef, Output, EventEmitter, OnDestroy }
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs'; 
 
+import { FriendsControllerService } from '../../../../../../../services/api';
 import { ConversationControllerService } from '../../../../../../../services/api';
 import { FriendResponseDTO } from '../../../../../../../services/api/model/friendResponseDTO';
 import { FriendsDataService } from '../../../../../../../services/api/friends-data-service/friends-data-service'; 
 import { Token } from '../../../../../../../services/api/token/token'; // 🚀 1. Importamos el Token
 
+import { PresenceService } from '../../../../../../../services/api/presence/presence';
+import { Websocket } from '../../../../../../../services/api/websocket/websocket';
 @Component({
   selector: 'app-friends-all',
   standalone: true,
@@ -15,18 +18,21 @@ import { Token } from '../../../../../../../services/api/token/token'; // 🚀 1
   styleUrl: './friends-all.css',
 })
 export class FriendsAll implements OnInit, OnDestroy {
-
+  isLoading: boolean = true;
   FriendsList: FriendResponseDTO[] = [];
   private friendsSub?: Subscription; 
   myUserId!: number; // 🚀 2. Variable para tu ID
+  private subscriptions: Subscription = new Subscription();
 
   @Output() onOpenChat = new EventEmitter<{ conversationId: number, friendName: string }>();
 
   constructor(
-    private friendsDataService: FriendsDataService, 
+    private friendService: FriendsControllerService, 
     private cdr: ChangeDetectorRef,
     private conversationControllerService: ConversationControllerService,
-    private tokenService: Token // 🚀 3. Inyectamos el Token
+    private tokenService: Token ,
+    private ws: Websocket,
+    private presenceService: PresenceService
   ) {
     this.extractIdFromToken(); // 🚀 4. Sacamos tu ID al iniciar
   }
@@ -44,6 +50,7 @@ export class FriendsAll implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+      this.ws.conectar();
       this.fetchFriends();
   }
 
@@ -52,18 +59,35 @@ export class FriendsAll implements OnInit, OnDestroy {
   }
 
   fetchFriends(): void {
-    this.friendsSub = this.friendsDataService.allFriends$.subscribe({
-      next: (data) => {
-        // 🚀 5. Filtramos la lista para que NO incluya tu propio ID
-        this.FriendsList = data.filter(friend => friend.id !== this.myUserId);
+    this.isLoading = true;
+    
+    // 🛡️ IMPORTANTE: Si recargamos la lista, limpiamos las suscripciones viejas
+    // para que no se dupliquen los eventos del WebSocket.
+    this.subscriptions.unsubscribe();
+    this.subscriptions = new Subscription();
+
+    this.friendService.getMyFriends().subscribe({
+      next: (friends) => {
+        // 1. Filtrado inicial: Solo los que NO están OFFLINE
+        this.FriendsList = friends
+        this.isLoading = false;
+        
+        // 2. Suscribirse a cambios de estado para cada amigo cargado
+        this.FriendsList.forEach(friend => {
+          if (friend.id) {
+            const statusSub = this.presenceService.watchUserStatus(friend.id).subscribe({
+              next: (rawStatus) => {
+                this.handleStatusUpdate(friend.id!, rawStatus);
+              }
+            });
+            this.subscriptions.add(statusSub);
+          }
+        });
         this.cdr.detectChanges();
       },
-      error: (error) => {
-        console.error('Error fetching friends from service:', error);
-      }
+      error: () => (this.isLoading = false)
     });
-
-    this.friendsDataService.loadAllFriends();
+    
   }
 
   startChat(friendId: number | undefined, friendName: string | undefined): void {
@@ -77,5 +101,23 @@ export class FriendsAll implements OnInit, OnDestroy {
         console.error('Error creating conversation:', error);
       }
     });
+  }
+
+  private handleStatusUpdate(friendId: number, rawStatus: string): void {
+    // 🚀 EL TRUCO DE MAGIA: Limpiamos las comillas y espacios basura que manda Spring Boot
+    const newStatus = rawStatus.replace(/['"]+/g, '').trim(); 
+    
+    console.log(`Estado procesado para ID ${friendId}: [${newStatus}]`);
+      const index = this.FriendsList.findIndex(f => f.id === friendId);
+      if (index !== -1) {
+        // Reemplazamos el objeto completo para disparar la detección de cambios
+        this.FriendsList[index] = { ...this.FriendsList[index], status: newStatus as any };
+        this.cdr.detectChanges();
+      } else if (newStatus !== 'OFFLINE') {
+        // Si un amigo se conecta y no estaba en la lista, recargamos
+        this.fetchFriends();
+        this.cdr.detectChanges();
+      }
+    
   }
 }
