@@ -105,6 +105,9 @@ export class Server implements OnInit, OnDestroy {
     });
   }
 
+
+  
+
   private connectToVoicePresence(serverId: number): void {
     if (this.voicePresenceSub) {
       this.voicePresenceSub.unsubscribe();

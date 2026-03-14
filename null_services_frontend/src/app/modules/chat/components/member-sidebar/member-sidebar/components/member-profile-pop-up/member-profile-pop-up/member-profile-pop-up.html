@@ -14,7 +14,13 @@
           {{ member.username?.charAt(0) | uppercase }}
         </div>
       }
-      <div class="absolute bottom-0 right-0 w-6 h-6 bg-[#f0b232] rounded-full border-[4px] border-[#111214]"></div>
+      <div class="absolute bottom-0 right-0 w-6 h-6 rounded-full border-[4px] border-[#111214]"
+             [ngClass]="{
+               'bg-[#23a559]': member.status === 'ONLINE',
+               'bg-[#f0b232]': member.status === 'IDLE',
+               'bg-[#f23f43]': member.status === 'DO_NOT_DISTURB',
+               'bg-[#80848e]': member.status === 'OFFLINE' || !member.status
+             }"></div>
     </div>
 
     <div class="h-14 w-full"></div>
