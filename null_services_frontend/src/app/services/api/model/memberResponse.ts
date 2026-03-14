@@ -13,5 +13,6 @@ export interface MemberResponse {
     id?: number;
     username?: string;
     imageUrl?: string;
+    status?: string;
 }
 
