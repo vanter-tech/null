@@ -123,6 +123,7 @@ public class ServerService {
                         .id(member.getId())
                         .username(member.getUsername()) // O el campo que uses en tu User
                         .imageUrl(member.getImageUrl()) // Si tienes avatar
+                        .status(member.getStatus() != null ? member.getStatus().name() : "OFFLINE")
                         .build())
                 .collect(Collectors.toList())
                 : List.of();
