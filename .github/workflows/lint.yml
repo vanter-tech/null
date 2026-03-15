@@ -49,7 +49,7 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24.13.0' # Puedes cambiarlo a la versión que uses
+          node-version: '24.13.0'
           cache: 'npm'
           cache-dependency-path: ./null_services_frontend/package-lock.json
       - name: Instalar dependencias
