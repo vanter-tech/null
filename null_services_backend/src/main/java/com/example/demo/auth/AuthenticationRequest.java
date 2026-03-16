@@ -9,21 +9,31 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * DTO (Data Transfer Object) que encapsula la carga útil (payload) de la solicitud de inicio de sesión.
+ * DTO (Data Transfer Object) que encapsula la carga útil (payload) de
+ * la solicitud de inicio de sesión.
  * <p>
- * Implementa validación de entrada (Input Validation) mediante Jakarta Bean Validation.
- * Esto asegura el principio "Fail-Fast": si el cliente envía credenciales mal formadas,
- * el controlador lanzará un MethodArgumentNotValidException automáticamente, devolviendo
- * un error 400 (Bad Request) sin llegar a sobrecargar la capa de servicio o la base de datos.
+ * Implementa validación de entrada (Input Validation)
+ * mediante Jakarta Bean Validation.
+ * Esto asegura el principio "Fail-Fast": si el cliente
+ * envía credenciales mal formadas,
+ * el controlador lanzará un MethodArgumentNotValidException
+ * automáticamente, devolviendo
+ * un error 400 (Bad Request) sin llegar a sobrecargar
+ * la capa de servicio o la base de datos.
  * </p>
  */
 @Getter
 @Setter
 @Builder
 public class AuthenticationRequest {
+    /**
+     * Caracteres minimo para la contraseña.
+     */
+    private static final int MIN_PASSWORD_LENGTH = 8;
 
     /**
-     * El nombre de usuario utilizado para el login. En esta arquitectura, se utiliza
+     * El nombre de usuario utilizado para el login.
+     * En esta arquitectura, se utiliza
      * estrictamente el correo electrónico.
      * <p>
      * Se valida estructuralmente (@Email) y se previene la inyección de cadenas
@@ -45,7 +55,8 @@ public class AuthenticationRequest {
      */
     @NotEmpty(message = "It must no be empty")
     @NotBlank(message = "Learn how to type , DONT BLANK SPACES")
-    @Size(min = 8, message = "Generic password will not accepted")
+    @Size(min = MIN_PASSWORD_LENGTH,
+            message = "Generic password will not accepted")
     private String password;
 
 }
