@@ -55,7 +55,8 @@ public class BeansConfig {
     /**
      * El director de orquesta de la autenticación.
      * <p>
-     * Es el encargado de recibir la petición de login desde el controlador,
+     * @param config es el encargado de recibir la petición de
+     * login desde el controlador,
      * pasarla al AuthenticationProvider
      * @return devuelve el objeto Authentication
      * validado si todo es correcto.
@@ -63,7 +64,7 @@ public class BeansConfig {
      */
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config
+            final AuthenticationConfiguration config
     ) throws Exception {
         return config.getAuthenticationManager();
     }
@@ -78,6 +79,8 @@ public class BeansConfig {
      * completamente distintos en la base de datos, previniendo
      * ataques de diccionario.
      * </p>
+     * @return Una instancia de PasswordEncoder
+     * (específicamente BCryptPasswordEncoder).
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -99,7 +102,8 @@ public class BeansConfig {
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        final UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
         final CorsConfiguration config = new CorsConfiguration();
 
         // Permite el envío de credenciales
@@ -107,7 +111,8 @@ public class BeansConfig {
         config.setAllowCredentials(true);
 
         // Define el origen exacto de nuestro frontend Angular
-        config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+        config.setAllowedOrigins(
+                Collections.singletonList("http://localhost:4200"));
 
         // Se permiten todos los headers ("*") porque los
         // protocolos como SockJS inyectan
@@ -120,7 +125,11 @@ public class BeansConfig {
         // los navegadores lo usan automáticamente antes
         // de peticiones POST/PUT complejas
         // para verificar si el servidor los acepta.
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "PATCH", "OPTIONS"));
+        config.setAllowedMethods(
+                Arrays.asList(
+                        "GET", "POST", "DELETE", "PUT", "PATCH", "OPTIONS"
+                )
+        );
 
         // Aplica esta política a todas las rutas ("/**") del servidor
         source.registerCorsConfiguration("/**", config);
