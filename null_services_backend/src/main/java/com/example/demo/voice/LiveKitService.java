@@ -1,36 +1,60 @@
-package com.example.demo.voice; // Ajusta a tu paquete
+package com.example.demo.voice;
 
 import io.livekit.server.AccessToken;
 import io.livekit.server.RoomJoin;
 import io.livekit.server.RoomName;
 import org.springframework.stereotype.Service;
 
+/**
+ * Servicio encargado de la integración con LiveKit
+ * para la gestión de canales de voz.
+ * Genera tokens de acceso (JWT) que permiten
+ * a los usuarios unirse a salas de
+ * comunicación en tiempo real de forma segura y controlada.
+ */
 @Service
-public class LiveKitService {
-
-    // 🚀 Estas son las llaves que Docker configuró automáticamente con el --dev
-    private final String API_KEY = "devkey";
-    private final String API_SECRET = "secret";
+public final class LiveKitService {
 
     /**
-     * Fabrica un boleto VIP para que un usuario entre a un canal de voz.
-     * * @param channelId El ID del canal (ej. "canal-voz-5")
-     * @param username El nombre o ID del usuario (ej. "Juan123")
-     * @return El Token JWT en formato texto
+     * Llave de API configurada para
+     * el servidor de LiveKit (modo desarrollo).
      */
-    public String generateVoiceToken(String channelId, String username) {
+    private static final String API_KEY = "devkey";
 
-        // 1. Creamos un token vacío con nuestras llaves maestras
+    /**
+     * Secreto de API utilizado para
+     * firmar los tokens de acceso.
+     */
+    private static final String API_SECRET = "secret";
+
+    /**
+     * Genera un token de acceso dinámico para
+     * que un usuario se una a un canal de voz.
+     * El token incluye permisos específicos de
+     * unión y el nombre de la sala.
+     *
+     * @param channelId El identificador único del canal de voz.
+     * @param username El nombre o identificador del
+     * usuario que solicita acceso.
+     * @return El token JWT firmado necesario para
+     * la conexión del cliente LiveKit.
+     */
+    public String generateVoiceToken(
+            final String channelId,
+            final String username) {
+
+        // Creamos un token vacío con nuestras llaves maestras
         AccessToken token = new AccessToken(API_KEY, API_SECRET);
 
-        // 2. Le ponemos el nombre del usuario
+        // Establecemos la identidad del usuario en el sistema LiveKit
         token.setName(username);
-        token.setIdentity(username); // Identity es el ID único en LiveKit
+        token.setIdentity(username);
 
-        // 3. Le damos permiso EXCLUSIVO para unirse a la sala de este Canal
+        // Otorgamos permiso exclusivo para
+        // unirse a la sala específica del canal
         token.addGrants(new RoomJoin(true), new RoomName("canal-" + channelId));
 
-        // 4. Firmamos y devolvemos el boleto
+        // Firmamos el token y lo devolvemos en formato JWT
         return token.toJwt();
     }
 }
