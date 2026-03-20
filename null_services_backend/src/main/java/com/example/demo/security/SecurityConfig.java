@@ -28,7 +28,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
     private final AuthenticationProvider authenticationProvider;
-    private final jwtFilter jwtFilter; // (Asegúrate de que la clase JwtFilter empiece con mayúscula)
+    private final JwtFilter jwtFilter; // (Asegúrate de que la clase JwtFilter empiece con mayúscula)
 
     /**
      * Construye y configura el filtro de seguridad principal de Spring.
