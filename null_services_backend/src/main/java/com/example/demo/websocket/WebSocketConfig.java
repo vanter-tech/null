@@ -1,6 +1,6 @@
 package com.example.demo.websocket;
 
-import com.example.demo.security.JwtService; // 👈 Importamos tu servicio real
+import com.example.demo.security.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -20,82 +20,115 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
+/**
+ * Configuración central del broker de
+ * mensajes WebSocket utilizando STOMP.
+ * Establece los endpoints de conexión, los prefijos
+ * de destino y un interceptor
+ * de seguridad para validar tokens JWT en el canal de entrada.
+ */
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    /**
+     * Orígenes permitidos para CORS, inyectados
+     * desde la configuración de la aplicación.
+     */
     @Value("${application.cors.allowed-origins}")
     private String[] allowedOrigins;
 
+    /**
+     * Primeros 7 caracteres (Bearer ) para eliminar y
+     * obtener el código jwt limpio.
+     */
+    private final int bearer = 7;
+
+    /**
+     * Servicio para la extracción y validación de tokens JWT.
+     */
     @Autowired
     private JwtService jwtService;
 
+    /**
+     * Servicio para cargar los detalles del usuario
+     * desde la base de datos.
+     */
     @Autowired
     private UserDetailsService userDetailsService;
 
+    /**
+     * Registra los endpoints de STOMP que los clientes
+     * utilizarán para conectar.
+     *
+     * @param registry El registro de endpoints de STOMP.
+     */
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
+    public void registerStompEndpoints(final StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*");
     }
 
+    /**
+     * Configura el broker de mensajes para manejar
+     * tópicos y destinos de aplicación.
+     *
+     * @param registry El registro del broker de mensajes.
+     */
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
+    public void configureMessageBroker(final MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/topic");
         registry.setApplicationDestinationPrefixes("/app");
     }
 
     /**
-     * INTERCEPTOR: El "portero" del WebSocket.
-     * Atrapa el token JWT que viene desde Angular, lo valida y le da una
-     * identidad real (Principal) a la sesión de STOMP.
+     * Configura el canal de entrada con un interceptor que actúa como portero.
+     * Atrapa el token JWT desde los headers de STOMP, lo valida y asigna
+     * una identidad (Principal) a la sesión del WebSocket.
+     *
+     * @param registration El registro de la configuración del canal.
      */
     @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
+    public void configureClientInboundChannel(
+            final ChannelRegistration registration) {
+
         registration.interceptors(new ChannelInterceptor() {
             @Override
-            public Message<?> preSend(Message<?> message, MessageChannel channel) {
-                StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+            public Message<?> preSend(
+                    final Message<?> message,
+                    final MessageChannel channel) {
+                StompHeaderAccessor accessor =
+                        MessageHeaderAccessor.getAccessor(message,
+                                StompHeaderAccessor.class);
 
-                // Solo interceptamos cuando el cliente intenta establecer la conexión inicial
-                if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+                if (accessor != null
+                        && StompCommand.CONNECT.equals(accessor.getCommand())) {
 
-                    // Extraemos el token del header que configuraste en Angular (rxStompConfig)
-                    String authHeader = accessor.getFirstNativeHeader("Authorization");
+                    String authHeader = accessor.getFirstNativeHeader(
+                            "Authorization");
 
-                    if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                        String token = authHeader.substring(7);
+                    if (authHeader != null
+                            &&
+                            authHeader.startsWith("Bearer ")) {
+
+                        String token = authHeader.substring(bearer);
 
                         try {
-                            // 1. Sacamos el email usando tu JwtService
-                            String userEmail = jwtService.extractUsername(token);
+                            String email = jwtService.extractUsername(token);
 
-                            if (userEmail != null) {
-                                // 2. Buscamos al usuario en la BD
-                                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+                            if (email != null) {
+                                UserDetails user = userDetailsService
+                                        .loadUserByUsername(email);
 
-                                // 3. Validamos que el token no esté expirado o corrupto
-                                if (jwtService.isTokenValid(token, userDetails)) {
-
-                                    // 4. Creamos el objeto de autenticación
-                                    UsernamePasswordAuthenticationToken authentication =
-                                            new UsernamePasswordAuthenticationToken(
-                                                    userDetails,
-                                                    null,
-                                                    userDetails.getAuthorities()
-                                            );
-
-                                    // 5. ¡LA MAGIA! Vinculamos este usuario a la sesión del WebSocket
-                                    accessor.setUser(authentication);
-                                    System.out.println("✅ WS Autenticado: " + userEmail);
+                                if (jwtService.isTokenValid(token, user)) {
+                                    // Usamos el método de ayuda aquí abajo 👇
+                                    accessor.setUser(createAuthToken(user));
+                                    System.out.println("✅ WS: " + email);
                                 }
                             }
                         } catch (Exception e) {
-                            // Si el token es inválido o expiró, simplemente no autenticamos la sesión
-                            System.err.println("❌ Token JWT inválido en el WebSocket: " + e.getMessage());
+                            System.err.println("❌ WS Err: " + e.getMessage());
                         }
-                    } else {
-                        System.out.println("⚠️ Intento de conexión WS sin token JWT.");
                     }
                 }
                 return message;
@@ -103,10 +136,39 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         });
     }
 
+    /**
+     * Configura los límites de tamaño y tiempo
+     * del transporte de WebSockets.
+     *
+     * @param registration El registro de
+     * la configuración del transporte.
+     */
     @Override
-    public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
-        registration.setMessageSizeLimit(128 * 1024);      // 128 KB por mensaje
-        registration.setSendBufferSizeLimit(1024 * 1024);  // 1 MB de buffer total
-        registration.setSendTimeLimit(20000);              // 20 segundos para completar envíos
+    public void configureWebSocketTransport(
+            final WebSocketTransportRegistration registration) {
+        final int messageSizeLimit = 128 * 1024;
+        final int bufferSizeLimit = 1024 * 1024;
+        final int timeLimit = 20000;
+
+        registration.setMessageSizeLimit(messageSizeLimit);
+        registration.setSendBufferSizeLimit(bufferSizeLimit);
+        registration.setSendTimeLimit(timeLimit);
+    }
+
+    /**
+     * Crea el token de autenticación para el WebSocket.
+     * Método extraído para evitar superar
+     * el límite de 80 caracteres.
+     *
+     * @param user Los detalles del usuario validado.
+     * @return El token de autenticación configurado.
+     */
+    private UsernamePasswordAuthenticationToken createAuthToken(
+            final UserDetails user) {
+        return new UsernamePasswordAuthenticationToken(
+                user,
+                null,
+                user.getAuthorities()
+        );
     }
 }
