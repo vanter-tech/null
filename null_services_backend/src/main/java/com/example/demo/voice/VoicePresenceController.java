@@ -36,8 +36,8 @@ public class VoicePresenceController {
      */
     @MessageMapping("/server/{serverId}/voice/join")
     public void joinVoice(
-            @DestinationVariable Long serverId,
-            VoiceJoinRequest request) {
+            final @DestinationVariable Long serverId,
+            final VoiceJoinRequest request) {
 
         VoiceParticipant participant = new VoiceParticipant(
                 request.getUserId(),
@@ -59,10 +59,13 @@ public class VoicePresenceController {
      */
     @MessageMapping("/server/{serverId}/voice/leave")
     public void leaveVoice(
-            @DestinationVariable Long serverId,
-            VoiceJoinRequest request) {
+            final @DestinationVariable Long serverId,
+            final VoiceJoinRequest request) {
 
-        presenceService.leaveRoom(serverId, request.getChannelId(), request.getUserId());
+        presenceService.leaveRoom(
+                serverId,
+                request.getChannelId(),
+                request.getUserId());
     }
 
     /**
@@ -76,7 +79,8 @@ public class VoicePresenceController {
      * servidor a sincronizar.
      */
     @MessageMapping("/server/{serverId}/voice/sync")
-    public void syncVoice(@DestinationVariable Long serverId) {
+    public void syncVoice(
+            final @DestinationVariable Long serverId) {
         presenceService.broadcastState(serverId);
     }
 }
