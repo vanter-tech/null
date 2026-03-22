@@ -1,8 +1,8 @@
 <div class="fixed inset-0 bg-black/50 z-[10000] flex items-center justify-center font-sans select-none overflow-hidden text-[#b5bac1]"
-     (click)="closeModal()"> 
+     (click)="closeModal()" tabindex="0" role="button"> 
      
   <div class="flex w-full max-w-[1400px] h-[92vh] max-h-[900px] rounded-lg shadow-2xl overflow-hidden relative"
-       (click)="$event.stopPropagation()"> 
+       (click)="$event.stopPropagation()" tabindex="0" role="button"> 
        
 
        <div class="w-[218px] bg-[#2b2d31] flex-shrink-0 pt-4 flex flex-col overflow-y-auto scrollbar-thin">
@@ -54,7 +54,7 @@
     <div class="flex-1 bg-[#313338] overflow-y-auto pt-14 pb-10 px-10 relative flex justify-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
 
       <div class="absolute top-14 right-10 flex flex-col items-center gap-1 cursor-pointer group"
-           (click)="closeModal()">
+           (click)="closeModal()" tabindex="0" role="button">
         <div class="w-9 h-9 border-2 border-[#b5bac1] rounded-full flex items-center justify-center text-[#b5bac1] group-hover:border-[#dbdee1] group-hover:text-[#dbdee1] group-hover:bg-[#35373c] transition-all">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
         </div>

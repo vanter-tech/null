@@ -9,10 +9,10 @@ import { Component, Output, EventEmitter } from '@angular/core';
 })
 export class UserPopUpProfilePreview {
 
-  @Output() close = new EventEmitter<void>();
+  @Output() closePopUp = new EventEmitter<void>();
 
     closeModal(): void{
-    this.close.emit();
+    this.closePopUp.emit();
   }
 
 }

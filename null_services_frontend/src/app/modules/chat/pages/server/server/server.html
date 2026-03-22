@@ -213,7 +213,7 @@
 @if (isDeleteServerModalOpen && serverData) {
   <app-delete-server-modal 
     [serverName]="serverData.name || '' " 
-    (close)="isDeleteServerModalOpen = false" 
+    (closePopUp)="isDeleteServerModalOpen = false" 
     (confirmDelete)="executeServerDeletion()">
   </app-delete-server-modal>
 }

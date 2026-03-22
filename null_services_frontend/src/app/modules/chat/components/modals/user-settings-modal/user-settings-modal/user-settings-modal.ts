@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 
@@ -40,10 +40,9 @@ export class UserSettingsModal implements OnInit, OnDestroy {
    * * @param modalService - Servicio para gestionar el estado de visibilidad del modal.
    * @param authService - Servicio centralizado de autenticación.
    */
-  constructor(
-    private modalService: Modalservice,
-    private authService: AuthService
-  ) {}
+
+  private modalService = inject(Modalservice)
+  private authService = inject(AuthService)
 
   /**
    * Ciclo de vida de inicialización de Angular.

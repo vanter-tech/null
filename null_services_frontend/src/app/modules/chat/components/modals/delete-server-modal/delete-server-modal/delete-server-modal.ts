@@ -13,14 +13,14 @@ export class DeleteServerModal {
   @Input({ required: true }) serverName!: string;
 
   // Emitimos eventos al componente padre
-  @Output() close = new EventEmitter<void>();
+  @Output() closePopUp = new EventEmitter<void>();
   @Output() confirmDelete = new EventEmitter<void>();
 
   // Lo que el usuario escribe en el input
-  confirmInput: string = '';
+  confirmInput = '';
 
   closeModal(): void {
-    this.close.emit();
+    this.closePopUp.emit();
   }
 
   // Comprueba si el texto ingresado coincide exactamente con el nombre

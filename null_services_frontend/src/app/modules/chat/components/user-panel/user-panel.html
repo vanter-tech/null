@@ -8,7 +8,7 @@
     </app-user-panel-pop-up>
   }
 
-  <div (click)="toggleStatusMenu()" class="flex items-center gap-2 hover:bg-[#3f4147] p-1 rounded-md cursor-pointer transition-colors flex-1 min-w-0 mr-2">
+  <div (click)="toggleStatusMenu()" tabindex="0" role="button" class="flex items-center gap-2 hover:bg-[#3f4147] p-1 rounded-md cursor-pointer transition-colors flex-1 min-w-0 mr-2">
     
     <div class="relative w-8 h-8 rounded-full bg-[#5865F2] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
       {{ username ? username.charAt(0).toUpperCase() : 'U' }}

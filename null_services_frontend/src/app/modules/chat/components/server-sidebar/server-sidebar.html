@@ -52,7 +52,7 @@
 
   <div class="w-8 h-[1px] bg-[#35363C] rounded-full my-2"></div>
 
-  <div (click)="openModal()" class="group relative flex items-center justify-center w-full cursor-pointer">
+  <div (click)="openModal()" tabindex="0" role="button" class="group relative flex items-center justify-center w-full cursor-pointer">
     <div class="absolute left-0 w-1 bg-white rounded-r-lg opacity-0 transition-all duration-300 h-2 group-hover:opacity-100 group-hover:h-5"></div>
     <div class="w-12 h-12 bg-[#313338] text-[#23A559] group-hover:bg-[#23A559] group-hover:text-white rounded-[24px] group-hover:rounded-[16px] transition-all duration-300 flex items-center justify-center text-2xl font-light">
       +
@@ -95,9 +95,9 @@
 
       <div class="px-6 pb-6 text-left">
         
-        <label class="text-[#B5BAC1] text-xs font-bold uppercase mb-2 block tracking-wide">
+        <span class="text-[#B5BAC1] text-xs font-bold uppercase mb-2 block tracking-wide">
           Nombre del servidor <span class="text-red-500">*</span>
-        </label>
+        </span>
         <input 
           type="text" 
           [(ngModel)]="serverNameInput"
@@ -106,9 +106,9 @@
           placeholder="Servidor de Prueba"
         />
 
-        <label class="text-[#B5BAC1] text-xs font-bold uppercase mb-2 block tracking-wide">
+        <span class="text-[#B5BAC1] text-xs font-bold uppercase mb-2 block tracking-wide">
           URL de la Imagen (Opcional)
-        </label>
+        </span>
         <input 
           type="text"
           name="serverImageInput" 

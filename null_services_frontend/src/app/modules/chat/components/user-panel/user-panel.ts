@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -21,23 +21,21 @@ import { UserPanelPopUp } from './user-panel-pop-up/user-panel-pop-up/user-panel
 })
 export class UserPanel implements OnInit, OnDestroy {
 
-  username: string = 'Usuario';
+  username = 'Usuario';
   private sub!: Subscription;
 
-  isStatusMenuOpen: boolean = false;
+  isStatusMenuOpen = false;
   currentStatus: AuthenticationResponse.StatusEnum = AuthenticationResponse.StatusEnum.Online;
-  showSmallPanel: boolean = false;
+  showSmallPanel = false;
 
   // 🚀 NUEVA VARIABLE: Guardamos el usuario completo
   currentUser: AuthenticationResponse | null = null;
 
-  constructor(
-    private router: Router,
-    private nickService: AuthService,
-    private userService: UsersService,
-    private ws: Websocket,
-    private modalService: Modalservice
-  ) {}
+  private router = inject(Router)
+  private nickService = inject(AuthService)
+  private userService = inject(UsersService)
+  private ws = inject(Websocket)
+  private modalService = inject(Modalservice)
 
   ngOnInit(): void {
     // 🚀 1. MAGIA REACTIVA: Nos suscribimos al objeto global
@@ -82,7 +80,7 @@ export class UserPanel implements OnInit, OnDestroy {
     // 🚀 2. Actualizamos de forma reactiva a través del servicio central
     this.nickService.updateLocalStatus(newStatus);
 
-    this.userService.updateStatus(newStatus as any).subscribe({
+    this.userService.updateStatus(newStatus).subscribe({
       next: () => console.log(`Estado guardado en BD: ${newStatus}`),
       error: (err) => {
         console.error('Error al guardar el estado', err);

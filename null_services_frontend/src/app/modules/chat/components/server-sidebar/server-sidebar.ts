@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, inject } from '@angular/core';
 import { CommonModule} from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ServerControllerService } from '../../../../services/api';
@@ -18,15 +18,12 @@ export class ServerSidebar implements OnInit {
 
   servers: ServerResponse[] = [];
 
-  isModalOpen: boolean = false;
-  serverNameInput: string = '';
-  serverImageInput: string = '';
+  isModalOpen = false;
+  serverNameInput = '';
+  serverImageInput = '';
 
-  constructor( private serverService: ServerControllerService,
-    private cdr: ChangeDetectorRef
-  ) {
-
-  }
+  private serverService = inject(ServerControllerService)
+  private cdr = inject(ChangeDetectorRef)
 
   ngOnInit() {
     this.loadServers();
