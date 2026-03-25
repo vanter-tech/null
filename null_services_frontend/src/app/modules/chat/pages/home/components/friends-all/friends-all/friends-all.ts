@@ -1,12 +1,12 @@
-import { Component, OnInit, ChangeDetectorRef, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Output, EventEmitter, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs'; 
 
 import { FriendsControllerService } from '../../../../../../../services/api';
 import { ConversationControllerService } from '../../../../../../../services/api';
 import { FriendResponseDTO } from '../../../../../../../services/api/model/friendResponseDTO';
-import { FriendsDataService } from '../../../../../../../services/api/friends-data-service/friends-data-service'; 
-import { Token } from '../../../../../../../services/api/token/token'; // 🚀 1. Importamos el Token
+import { ConversationResponse } from '../../../../../../../services/api';
+import { Token } from '../../../../../../../services/api/token/token';
 
 import { PresenceService } from '../../../../../../../services/api/presence/presence';
 import { Websocket } from '../../../../../../../services/api/websocket/websocket';
@@ -18,24 +18,22 @@ import { Websocket } from '../../../../../../../services/api/websocket/websocket
   styleUrl: './friends-all.css',
 })
 export class FriendsAll implements OnInit, OnDestroy {
-  isLoading: boolean = true;
+  isLoading = true;
   FriendsList: FriendResponseDTO[] = [];
   private friendsSub?: Subscription; 
-  myUserId!: number; // 🚀 2. Variable para tu ID
+  myUserId!: number; 
   private subscriptions: Subscription = new Subscription();
 
-  @Output() onOpenChat = new EventEmitter<{ conversationId: number, friendName: string }>();
+  @Output() toOpenChat = new EventEmitter<{ conversationId: number | undefined, friendName: string }>();
 
-  constructor(
-    private friendService: FriendsControllerService, 
-    private cdr: ChangeDetectorRef,
-    private conversationControllerService: ConversationControllerService,
-    private tokenService: Token ,
-    private ws: Websocket,
-    private presenceService: PresenceService
-  ) {
-    this.extractIdFromToken(); // 🚀 4. Sacamos tu ID al iniciar
-  }
+  private friendService = inject(FriendsControllerService)
+  private cdr = inject(ChangeDetectorRef)
+  private conversationControllerService = inject(ConversationControllerService)
+  private tokenService = inject(Token)
+  private ws = inject(Websocket)
+  private presenceService = inject(PresenceService)
+
+  constructor() { this.extractIdFromToken(); }
 
   extractIdFromToken() {
     const tokenStr = this.tokenService.token;
@@ -93,9 +91,9 @@ export class FriendsAll implements OnInit, OnDestroy {
   startChat(friendId: number | undefined, friendName: string | undefined): void {
     if (!friendId || !friendName) return;
 
-    this.conversationControllerService.createConversation(friendId as any).subscribe({
-      next: (response: any) => {
-        this.onOpenChat.emit({ conversationId: response.id, friendName: friendName });
+    this.conversationControllerService.createConversation(friendId).subscribe({
+      next: (response: ConversationResponse) => {
+        this.toOpenChat.emit({ conversationId: response.id, friendName: friendName });
       },
       error: (error) => {
         console.error('Error creating conversation:', error);
@@ -111,7 +109,7 @@ export class FriendsAll implements OnInit, OnDestroy {
       const index = this.FriendsList.findIndex(f => f.id === friendId);
       if (index !== -1) {
         // Reemplazamos el objeto completo para disparar la detección de cambios
-        this.FriendsList[index] = { ...this.FriendsList[index], status: newStatus as any };
+        this.FriendsList[index] = { ...this.FriendsList[index], status: newStatus as FriendResponseDTO.StatusEnum };
         this.cdr.detectChanges();
       } else if (newStatus !== 'OFFLINE') {
         // Si un amigo se conecta y no estaba en la lista, recargamos
