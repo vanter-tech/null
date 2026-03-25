@@ -1,5 +1,7 @@
 import { ElementRef, ViewChild, 
-  Component, Input, OnChanges, SimpleChanges, ChangeDetectorRef, Output, EventEmitter, OnDestroy } from '@angular/core';
+  Component, Input, OnChanges, SimpleChanges, ChangeDetectorRef, Output, EventEmitter, OnDestroy,
+  inject
+ } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -27,14 +29,13 @@ export class ChatRoom implements OnChanges, OnDestroy {
   @Input({required: true}) friendName!: string;
   @ViewChild('scrollMe') private myScrollContainer!: ElementRef;
 
-  newMessage: string = '';
+  newMessage = '';
   messages: Message[] = [];
 
   myUserId!: number;
 
   private topicSubscription?: Subscription;
 
-  // 🚀 Objeto temporal para el panel lateral (Después lo traerás de tu Backend)
   friendProfile = {
     avatar: '', 
     bannerColor: '#5865F2', 
@@ -44,14 +45,12 @@ export class ChatRoom implements OnChanges, OnDestroy {
     mutualServers: 1
   };
 
-  constructor(
-    private messageService: MessageControllerService,
-    private wsService: Websocket,
-    private cdr: ChangeDetectorRef,
-    private tokenService: Token
-  ){
-    this.extractIdFromToken();
-  }
+  private messageService = inject(MessageControllerService)
+  private wsService = inject(Websocket)
+  private cdr = inject(ChangeDetectorRef)
+  private tokenService = inject(Token)
+
+  constructor(){ this.extractIdFromToken();}
 
   extractIdFromToken(){
     const tokenStr = this.tokenService.token
@@ -112,7 +111,7 @@ export class ChatRoom implements OnChanges, OnDestroy {
 
   loadChatHistory(){
 
-    this.messageService.getChatHistory(this.conversationId as any).subscribe({
+    this.messageService.getChatHistory(this.conversationId).subscribe({
        next:(history) => {
         this.messages = history;
         this.cdr.markForCheck();
@@ -129,7 +128,7 @@ export class ChatRoom implements OnChanges, OnDestroy {
 
       if (!this.newMessage.trim()) return;
 
-    const msgPayload: any = {
+    const msgPayload: Message = {
       content: this.newMessage,
       conversationId: this.conversationId,
       sendId: this.myUserId, 
@@ -179,7 +178,7 @@ export class ChatRoom implements OnChanges, OnDestroy {
     try {
       // Le decimos al contenedor que su posición superior sea igual a su altura total
       this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
-    } catch(err) { 
+    } catch { 
       // Silenciamos el error por si Angular intenta hacer scroll antes de que el contenedor exista
     }
   }
@@ -198,9 +197,9 @@ export class ChatRoom implements OnChanges, OnDestroy {
   }
 
 
-  @Output() onClose = new EventEmitter<void>();
+  @Output() toClose = new EventEmitter<void>();
 
   backToFriends() {
-  this.onClose.emit();
+  this.toClose.emit();
   }
 }
