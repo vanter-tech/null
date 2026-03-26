@@ -6,6 +6,9 @@ const angular = require("angular-eslint");
 
 module.exports = defineConfig([
   {
+    ignores: ["src/app/services/api/api/**/*"]
+  },
+  {
     files: ["**/*.ts"],
     extends: [
       eslint.configs.recommended,
@@ -42,3 +45,4 @@ module.exports = defineConfig([
     rules: {},
   }
 ]);
+

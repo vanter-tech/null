@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { FriendResponseDTO } from '../model/friendResponseDTO';
 import { FriendsControllerService } from '../api/friendsController.service';
@@ -12,13 +12,13 @@ export class FriendsDataService {
   
   private hasLoaded = false; // 🚀 Bandera mágica de caché
 
-  constructor(private friendsControllerService: FriendsControllerService) { }
+  private friendsControllerService = inject(FriendsControllerService)
 
   /**
    * Carga los amigos. Si ya están cargados en memoria, no repite la llamada HTTP
    * a menos que le pases forceReload = true.
    */
-  loadAllFriends(forceReload: boolean = false): void {
+  loadAllFriends(forceReload = false): void {
     if (this.hasLoaded && !forceReload) {
       return; // 🛑 Ya los tenemos, detenemos la llamada a la API
     }
