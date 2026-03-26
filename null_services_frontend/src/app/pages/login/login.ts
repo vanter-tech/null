@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AuthenticationRequest } from '../../services/api';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -20,14 +20,11 @@ export class Login {
     password: ''
   };
 
-  errorMessage: Array<string> = [];
-
-  constructor(
-    private authService: AuthenticationService,
-    private router: Router,
-    private tokenService: Token,
-    private nickService: AuthService
-  ) {}
+  errorMessage: string[] = [];
+  private authService = inject(AuthenticationService)
+  private router = inject(Router)
+  private tokenService = inject(Token)
+  private nickService = inject(AuthService)
 
   login() {
     this.errorMessage = [];
