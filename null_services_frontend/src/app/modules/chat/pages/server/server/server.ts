@@ -1,10 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, OnDestroy, NgZone } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, OnDestroy, NgZone, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
-import { ServerControllerService, ServerResponse, MessageControllerService, Message, AuthenticationService, ChannelResponse } from '../../../../../services/api';
+import { ServerControllerService, ServerResponse, MessageControllerService, Message, ChannelResponse } from '../../../../../services/api';
 import { Websocket } from '../../../../../services/api/websocket/websocket';
 import { AuthService } from '../../../../../services/api/authservice/auth-service';
 import { Token } from '../../../../../services/api/token/token';
@@ -33,6 +33,12 @@ export interface VoiceParticipant {
   imageUrl: string;
 }
 
+export interface ActiveVoiceParticipant {
+  identity: string;
+  isSpeaking: boolean;
+  isLocal: boolean;
+}
+
 @Component({
   selector: 'app-server',
   standalone: true,
@@ -51,7 +57,7 @@ export interface VoiceParticipant {
 export class Server implements OnInit, OnDestroy {
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
-  isItMe(sendId: any): boolean {
+  isItMe(sendId: number | undefined): boolean {
     if (!sendId || !this.myUserId) return false;
     return Number(sendId) === Number(this.myUserId);
   }
@@ -62,11 +68,11 @@ export class Server implements OnInit, OnDestroy {
   activeChannelName = 'general'; 
   activeChannelType = 'TEXT';
   
-  isMembersListOpen: boolean = true;
-  isServerMenuOpen: boolean = false;
+  isMembersListOpen = true;
+  isServerMenuOpen = false;
 
   messages: Message[] = [];
-  chatInput: string = '';
+  chatInput = '';
   myUserId!: number;
 
   private topicSubscription?: Subscription;
@@ -75,23 +81,23 @@ export class Server implements OnInit, OnDestroy {
   currentVoiceRoom: Room | null = null;
   connectedVoiceChannelId: number | null = null; 
 
-  voiceParticipants: any[] = [];
+  voiceParticipants: ActiveVoiceParticipant[] = [];
 
-  globalVoiceState: { [key: number]: VoiceParticipant[] } = {};
+  globalVoiceState: Record<number, VoiceParticipant[]> = {};
   private voicePresenceSub?: Subscription;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private serverService: ServerControllerService,
-    private messageService: MessageControllerService,
-    private authService: AuthService,
-    private ws: Websocket,
-    private cdr: ChangeDetectorRef,
-    private tokenService: Token,
-    private voiceService: VoiceControllerService,
-    private ngZone: NgZone // 🚀 NUEVO: Inyectamos NgZone para despertar a Angular
-  ) {
+  private route = inject(ActivatedRoute)
+  private router = inject(Router)
+  private serverService = inject(ServerControllerService)
+  private messageService = inject(MessageControllerService)
+  private authService = inject(AuthService)
+  private ws = inject(Websocket)
+  private cdr = inject(ChangeDetectorRef)
+  private tokenService = inject(Token)
+  private voiceService = inject(VoiceControllerService)
+  private ngZone = inject(NgZone)
+
+  constructor() {
     this.myUserId = this.authService.getMyUserId()
   }
 
@@ -193,7 +199,7 @@ export class Server implements OnInit, OnDestroy {
     console.log(`🎟️ Solicitando boleto VIP para el canal de voz ${channelId}...`);
 
     if (this.currentServerId) {
-      const myMemberData = this.serverData?.members?.find((m: any) => Number(m.id) === Number(this.myUserId));
+      const myMemberData = this.serverData?.members?.find((m) => Number(m.id) === Number(this.myUserId));
       const realUsername = myMemberData?.username || 'Usuario ' + this.myUserId;
       const realImageUrl = myMemberData?.imageUrl || '';
 
@@ -211,8 +217,8 @@ export class Server implements OnInit, OnDestroy {
     }
 
     this.voiceService.getVoiceToken(channelId.toString()).subscribe({
-      next: async (response: any) => {
-        const token = response.token || response['token']; 
+      next: async (response: Record<string, string>) => {
+        const token = response['token']; 
         if (token) {
           await this.connectToLiveKit(token);
         }
@@ -320,7 +326,7 @@ export class Server implements OnInit, OnDestroy {
   }
 
   // 🚀 NUEVO: Decide qué lista mostrar en la pantalla central dependiendo de si estamos en la llamada o no
-  getDisplayVoiceParticipants(): any[] {
+  getDisplayVoiceParticipants(): ActiveVoiceParticipant[] {
     // 1. Si estamos conectados a LiveKit, mostramos la lista en tiempo real (con aros verdes)
     if (this.currentVoiceRoom) {
       return this.voiceParticipants;
@@ -339,7 +345,7 @@ export class Server implements OnInit, OnDestroy {
   }
 
   private loadChannelHistory(channelId: number): void {
-    this.messageService.getChannelHistory(channelId as any).subscribe({
+    this.messageService.getChannelHistory(channelId).subscribe({
       next: (history) => {
         this.messages = history;
         this.cdr.detectChanges();
@@ -371,7 +377,7 @@ export class Server implements OnInit, OnDestroy {
 
     const payload: Message = {
       content: this.chatInput,
-      channelId: this.activeChannelId as any,
+      channelId: this.activeChannelId,
       sendId: this.myUserId
     };
 
@@ -423,7 +429,9 @@ export class Server implements OnInit, OnDestroy {
       if (this.scrollContainer) {
         this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
       }
-    } catch (err) {}
+    } catch {
+      // Intentionally ignore scroll errors
+    }
   }
 
   getActiveChannelName(): string {
