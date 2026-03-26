@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './user-panel-pop-up.css',
 })
 export class UserPanelPopUp {
-  @Input() username: String = 'Usuario'
+  @Input() username = 'Usuario'
   @Input() currentStatus!: AuthenticationResponse.StatusEnum;
   @Output() statusSelected = new EventEmitter<AuthenticationResponse.StatusEnum>();
   @Output() closeP = new EventEmitter<void>();
@@ -20,9 +20,9 @@ export class UserPanelPopUp {
 
   public statusEnum = AuthenticationResponse.StatusEnum
 
-  showSubMenu: boolean = false;
-  showFullModal: boolean = false;
-  isPanelVisible: boolean = true;
+  showSubMenu = false;
+  showFullModal = false;
+  isPanelVisible = true;
 
   toggleProfilePreview(event: Event): void{
     event.stopPropagation();

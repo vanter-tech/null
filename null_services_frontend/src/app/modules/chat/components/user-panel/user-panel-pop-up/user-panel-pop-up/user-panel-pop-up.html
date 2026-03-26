@@ -8,7 +8,7 @@
       <div class="absolute -top-[45px] left-4 rounded-full bg-[#2b2d31] p-[6px]">
         
         <div class="relative w-[80px] h-[80px] rounded-full overflow-hidden bg-gray-600 cursor-pointer hover:opacity-80 transition-opacity"
-             (click)="toggleProfilePreview($event)">
+             (click)="toggleProfilePreview($event)" tabindex="0" role="button">
         </div>
         
         <div class="absolute bottom-0 right-0 w-7 h-7 border-[4px] border-[#2b2d31] rounded-full pointer-events-none"
@@ -80,7 +80,7 @@
            <svg class="w-4 h-4 text-[#b5bac1] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
 
            @if(showSubMenu) {
-             <div class="absolute -top-[40px] -right-[270px] w-[260px] bg-[#111214] border border-[#1e1f22] rounded-lg shadow-2xl p-2 z-[1002] flex flex-col gap-1 text-[#dbdee1] font-medium text-sm cursor-default" (click)="$event.stopPropagation()">
+             <div class="absolute -top-[40px] -right-[270px] w-[260px] bg-[#111214] border border-[#1e1f22] rounded-lg shadow-2xl p-2 z-[1002] flex flex-col gap-1 text-[#dbdee1] font-medium text-sm cursor-default" (click)="$event.stopPropagation()" tabindex="0" role="button">
                 
                 <button (click)="selectStatus(statusEnum.Online, $event)" class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-[#4752c4] hover:text-white transition-colors w-full text-left">
                   <div class="w-2.5 h-2.5 rounded-full bg-[#23a559]"></div>
